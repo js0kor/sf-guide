@@ -1,5 +1,5 @@
 // 내용을 고친 뒤 배포할 때 버전 숫자를 올리면 친구들 폰에도 새 버전이 반영됩니다.
-const VERSION = 'sf-guide-v1';
+const VERSION = 'sf-guide-v2';
 const CORE = [
   './', './index.html', './manifest.webmanifest',
   './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png',
