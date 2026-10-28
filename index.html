@@ -90,7 +90,7 @@ button{cursor:pointer}
 .topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:var(--top-bg);color:var(--top-ink);border-bottom:1px solid var(--top-line)}
 .top-row{display:flex;align-items:center;gap:12px;padding-block:10px}
 .brand{display:flex;align-items:center;gap:10px;min-width:0;flex:1}
-.brand-mark{flex:none;width:36px;height:36px;border-radius:9px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-family:var(--f-mono);font-weight:600;font-size:.9rem;letter-spacing:.02em}
+.brand-mark{flex:none;width:36px;height:36px;border-radius:9px;display:block;object-fit:cover}
 .brand-text{min-width:0;display:flex;flex-direction:column}
 .brand-text strong{font-size:1.02rem;font-weight:700;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .brand-text .short{display:none}
@@ -101,11 +101,9 @@ button{cursor:pointer}
 .toptabs .count:empty{display:none}
 .toptabs .count{font-family:var(--f-mono);font-size:.75rem;padding:0 6px;border-radius:99px;background:rgba(127,127,127,.25)}
 .top-actions{display:flex;align-items:center;gap:8px;flex:none}
-.sync-chip{border:1px solid var(--top-line);background:transparent;color:var(--top-ink-2);border-radius:99px;padding:5px 10px;font-size:.75rem;display:flex;align-items:center;gap:6px;white-space:nowrap}
-.sync-chip .dot{width:7px;height:7px;border-radius:50%;background:var(--top-ink-2)}
-.sync-chip[data-s="synced"] .dot{background:#3FC57E}
-.sync-chip[data-s="saving"] .dot,.sync-chip[data-s="connecting"] .dot{background:#F2BC57}
-.sync-chip[data-s="error"] .dot{background:#FF7B90}
+.brand-title{display:flex;align-items:center;gap:8px;min-width:0}
+.trip-chip{flex:none;border:1px solid var(--top-line);background:transparent;color:var(--top-ink-2);border-radius:99px;padding:1px 8px;font-size:.72rem;font-weight:600;white-space:nowrap;font-family:var(--f-mono)}
+.trip-chip.on{border-color:var(--accent);color:var(--accent)}
 .size-btn{border:1px solid var(--top-line);background:transparent;color:var(--top-ink);border-radius:10px;min-width:40px;height:36px;font-weight:700;font-size:.95rem;padding:0 10px}
 .size-btn[aria-pressed="true"]{background:var(--top-ink);color:var(--top-bg)}
 .basebar{display:flex;align-items:center;gap:8px;padding-block:0 10px;overflow-x:auto;scrollbar-width:none}
@@ -416,13 +414,48 @@ button{cursor:pointer}
 @media (max-width:560px){
   .brand-text .long{display:none}
   .brand-text .short{display:inline}
-  .sync-chip .lbl{display:none}
-  .sync-chip{padding:9px}
+  .brand-sub .cd{display:none}
 }
 @media (max-width:380px){
   .brand-text strong{font-size:.95rem}
   .sheet-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
+.panel.wide{grid-column:1/-1}
+#setPanel,#expPanel{scroll-margin-top:calc(var(--top-h) + 12px)}
+.panel .sub-h{font-size:.8rem;font-weight:700;color:var(--ink-3);margin:16px 0 6px}
+.field select{height:44px;border:1px solid var(--line);border-radius:10px;background:var(--surface-2);padding:0 10px;font-size:.95rem;min-width:0;width:100%;color:var(--ink)}
+.field input[type="text"],.field input[type="date"]{font-family:inherit}
+.row-inline{display:flex;gap:8px;align-items:stretch}
+.row-inline > .grow{flex:1;min-width:0}
+.pick-list{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.pick-list button{text-align:left;border:1px solid var(--line);background:var(--surface-2);border-radius:10px;padding:9px 12px;font-size:.85rem;color:var(--ink)}
+.pick-list button small{display:block;color:var(--ink-3);font-size:.75rem;margin-top:2px}
+.toggles{display:flex;flex-wrap:wrap;gap:6px}
+.toggles button{border:1px solid var(--line);background:var(--surface-2);color:var(--ink-2);border-radius:99px;padding:6px 12px;font-size:.85rem;font-weight:600;display:inline-flex;align-items:center;gap:6px}
+.toggles button[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.toggles .x{opacity:.6;font-size:.95rem;line-height:1}
+.exp-list{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-direction:column}
+.exp-list li{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
+.exp-list li:last-child{border-bottom:0}
+.exp-list .t{flex:1;min-width:0}
+.exp-list .t strong{display:block;font-size:.92rem}
+.exp-list .t small{display:block;font-size:.78rem;color:var(--ink-3)}
+.exp-list .amt{font-family:var(--f-mono);font-weight:600;font-size:.9rem;text-align:right;white-space:nowrap}
+.exp-list .amt small{display:block;font-weight:500;color:var(--ink-3);font-size:.75rem}
+.settle{margin-top:12px;display:flex;flex-direction:column;gap:6px}
+.settle .xfer{display:flex;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:10px;background:var(--accent-soft);font-weight:600;font-size:.92rem}
+.settle .xfer .num{font-family:var(--f-mono)}
+.settle .bal{display:flex;justify-content:space-between;font-size:.82rem;color:var(--ink-2);padding:0 4px}
+.trip-banner{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 14px;border-radius:12px;background:var(--surface);border:1px solid var(--line);margin-bottom:12px;font-size:.9rem}
+.trip-banner .dd{font-family:var(--f-mono);font-weight:700;font-size:1.05rem;color:var(--accent)}
+.trip-banner .grow{flex:1;min-width:0}
+.install-tip{position:fixed;z-index:70;left:12px;right:12px;bottom:calc(var(--tabbar-h) + 12px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;gap:10px;padding:12px 12px 12px 14px;border-radius:14px;background:var(--ink);color:var(--surface);box-shadow:0 8px 28px rgba(0,0,0,.25);font-size:.86rem;line-height:1.45;max-width:520px;margin:0 auto}
+.install-tip img{width:40px;height:40px;border-radius:10px;flex:none}
+.install-tip .grow{flex:1;min-width:0}
+.install-tip button{border:0;border-radius:9px;font-weight:700;font-size:.85rem;padding:8px 12px}
+.install-tip .go{background:var(--accent);color:var(--accent-ink)}
+.install-tip .close{background:transparent;color:inherit;opacity:.7;padding:8px}
+@media (min-width:1024px){ .install-tip{bottom:24px} }
 @media (prefers-reduced-motion: reduce){
   *{transition:none!important;animation:none!important;scroll-behavior:auto!important}
 }
@@ -472,9 +505,9 @@ button{cursor:pointer}
 <header class="topbar" id="topbar">
   <div class="wrap top-row">
     <div class="brand">
-      <span class="brand-mark" aria-hidden="true">SF</span>
+      <img class="brand-mark" src="icons/icon-192.png" alt="" aria-hidden="true">
       <div class="brand-text">
-        <strong>샌프란꼬</strong>
+        <div class="brand-title"><strong>샌프란꼬</strong><button type="button" class="trip-chip" id="tripChip" data-go="plan" hidden></button></div>
         <span class="brand-sub" id="clockLine">현지 시각 확인 중</span>
       </div>
     </div>
@@ -485,13 +518,12 @@ button{cursor:pointer}
       <button type="button" data-go="info"><svg class="ico"><use href="#i-info"/></svg>정보·도구</button>
     </nav>
     <div class="top-actions">
-      <button type="button" class="sync-chip" id="syncChip" data-s="local"><span class="dot"></span><span class="lbl" id="syncLabel">이 기기에 저장</span></button>
       <button type="button" class="size-btn" id="sizeBtn" aria-pressed="false" title="글자 크기 키우기">가<span aria-hidden="true">+</span><span class="sr">글자 크게</span></button>
     </div>
   </div>
   <div class="wrap basebar" id="basebar" aria-label="숙소와 학회장으로 바로 길찾기">
     <span class="base-label">지금 위치에서</span>
-    <a class="base-chip hotel" id="baseHotel" target="_blank" rel="noopener"><span class="bi"><svg class="ico sm"><use href="#i-bed"/></svg></span>숙소로 <small>Inn at Union Sq</small></a>
+    <a class="base-chip hotel" id="baseHotel" target="_blank" rel="noopener"><span class="bi"><svg class="ico sm"><use href="#i-bed"/></svg></span>숙소로 <small id="baseHotelName">Inn at Union Sq</small></a>
     <a class="base-chip conf" id="baseConf" target="_blank" rel="noopener"><span class="bi"><svg class="ico sm"><use href="#i-badge"/></svg></span>모스콘 사우스 <small>747 Howard</small></a>
     <a class="base-chip marq" id="baseMarq" target="_blank" rel="noopener"><span class="bi"><svg class="ico sm"><use href="#i-building"/></svg></span>메리어트 마키스 <small>780 Mission</small></a>
     <button type="button" class="base-chip ghost" data-act="show-course" data-course="COMMUTE"><svg class="ico sm"><use href="#i-route"/></svg>안전 통근로 지도</button>
@@ -580,6 +612,7 @@ button{cursor:pointer}
         <h2>추천 3일 코스와 내 동선</h2>
         <p>구간마다 이동 수단과 길찾기 버튼이 있습니다. 폰 구글맵은 경유지를 3곳까지만 받기 때문에, 긴 동선은 자동으로 나눠서 엽니다.</p>
       </div>
+      <div id="tripBanner"></div>
       <div class="seg" id="planSeg" role="group" aria-label="일정 선택"></div>
       <div id="planBody"></div>
     </div>
@@ -673,7 +706,30 @@ button{cursor:pointer}
             <div class="field"><label for="calcRate">환율 (원/달러)</label><input id="calcRate" type="number" inputmode="decimal" min="0" step="1" value="1325"></div>
           </div>
           <div class="calc-out" id="calcOut"></div>
-          <p class="note" style="margin-top:10px">SF 판매세는 8.625%입니다. 영수증에 Service charge(18~20%)가 이미 붙어 있으면 팁을 따로 줄 필요가 없습니다. 일부 식당은 직원 건강보험 명목의 추가 요금(3~6%)을 메뉴에 표시하고 받습니다. 환율은 2026년 10월 27일 기준 약 1,324원이며, 카드 결제는 수수료가 1~2% 더 붙습니다.</p>
+          <p class="note" style="margin-top:10px">SF 판매세는 8.625%입니다. 영수증에 Service charge(18~20%)가 이미 붙어 있으면 팁을 따로 줄 필요가 없습니다. 일부 식당은 직원 건강보험 명목의 추가 요금(3~6%)을 메뉴에 표시하고 받습니다. 카드 결제는 수수료가 1~2% 더 붙습니다.</p>
+          <p class="note" style="margin-top:8px" id="rateNote"></p>
+        </div>
+
+        <div class="panel wide" id="expPanel">
+          <h3><svg class="ico"><use href="#i-calc"/></svg>경비 정산 (더치페이)</h3>
+          <p class="note" style="margin-top:10px">한 사람(총무) 폰에 모아서 기록하고, 마지막에 [정산 결과 복사]로 단톡방에 보내세요. 달러 지출은 위 계산기의 환율로 원화 환산합니다.</p>
+          <p class="sub-h">일행</p>
+          <div class="toggles" id="expPeople"></div>
+          <div class="row-inline" style="margin-top:8px">
+            <div class="field grow"><input id="expNewName" type="text" maxlength="10" placeholder="이름 추가 (예: 지영)" aria-label="일행 이름"></div>
+            <button type="button" class="btn" data-act="exp-add-person">추가</button>
+          </div>
+          <p class="sub-h">지출 기록</p>
+          <div class="calc-grid" style="margin-top:0">
+            <div class="field full"><label for="expTitle">내용</label><input id="expTitle" type="text" maxlength="30" placeholder="예: 하우스 오브 프라임 립 저녁"></div>
+            <div class="field"><label for="expAmt">금액</label><input id="expAmt" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0"></div>
+            <div class="field"><span class="lbl">통화</span><div class="seg" id="expCurSeg" role="group" aria-label="통화"><button type="button" data-cur="USD" aria-pressed="true">달러</button><button type="button" data-cur="KRW" aria-pressed="false">원</button></div></div>
+            <div class="field full"><label for="expPayer">낸 사람</label><select id="expPayer"></select></div>
+            <div class="field full"><span class="lbl">같이 쓴 사람 (누르면 빠짐)</span><div class="toggles" id="expSplit"></div></div>
+          </div>
+          <button type="button" class="btn primary block" style="margin-top:12px" data-act="exp-add">지출 추가</button>
+          <ul class="exp-list" id="expList"></ul>
+          <div id="expResult"></div>
         </div>
 
         <div class="panel">
@@ -738,6 +794,26 @@ button{cursor:pointer}
           </ul>
         </div>
 
+        <div class="panel" id="setPanel">
+          <h3><svg class="ico"><use href="#i-home"/></svg>여행 설정</h3>
+          <p class="sub-h">여행 날짜 (샌프란시스코 기준)</p>
+          <div class="calc-grid" style="margin-top:0">
+            <div class="field"><label for="tripStart">도착일</label><input id="tripStart" type="date"></div>
+            <div class="field"><label for="tripEnd">떠나는 날</label><input id="tripEnd" type="date"></div>
+          </div>
+          <p class="sub-h">숙소 위치</p>
+          <p style="font-size:.88rem" id="hotelNow"></p>
+          <div class="row-inline" style="margin-top:8px">
+            <div class="field grow"><input id="hotelQ" type="text" placeholder="호텔 이름이나 주소" aria-label="숙소 검색" enterkeyhint="search"></div>
+            <button type="button" class="btn" data-act="hotel-search">검색</button>
+          </div>
+          <div class="pick-list" id="hotelResults"></div>
+          <div class="actions" style="margin-top:10px">
+            <button type="button" class="btn sm" data-act="hotel-here"><svg class="ico sm"><use href="#i-nav"/></svg>지금 위치를 숙소로</button>
+            <button type="button" class="btn sm" data-act="hotel-reset" id="hotelResetBtn">기본 숙소로 되돌리기</button>
+          </div>
+        </div>
+
         <div class="panel">
           <h3><svg class="ico"><use href="#i-info"/></svg>이 가이드의 정보 기준</h3>
           <p class="src" style="margin-top:8px">요금·운영 정보는 2026년 10월 28일에 다시 확인했습니다. 가격, 운영 시간, 예약 정책은 바뀔 수 있으니 방문 전 구글 지도나 공식 사이트에서 확인하세요. 거리와 시간은 직선거리에 보정치를 곱한 추정입니다.</p>
@@ -757,6 +833,12 @@ button{cursor:pointer}
 </nav>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="install-tip" id="installTip" hidden>
+  <img src="icons/icon-192.png" alt="">
+  <div class="grow" id="installText"></div>
+  <button type="button" class="go" id="installGo" hidden>설치</button>
+  <button type="button" class="close" id="installClose" aria-label="닫기">✕</button>
+</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
 <script>
@@ -1179,7 +1261,8 @@ const CHECK = [
 
 /* =================== STATE =================== */
 const STORE_KEY = 'sfguide.v2';
-const DEFAULT_STATE = {fav:[], visited:[], route:[34,36,35], mode:'walking', check:{}, rate:1325, big:false, updatedAt:0};
+const DEFAULT_STATE = {fav:[], visited:[], route:[34,36,35], mode:'walking', check:{}, rate:1325, rateAuto:true, rateAt:0, big:false,
+  trip:{start:'', end:''}, hotel:null, exp:{people:[{id:1, name:'나'}], items:[], seq:2}, updatedAt:0};
 const clone = o => JSON.parse(JSON.stringify(o));
 function cleanState(s){
   const out = clone(DEFAULT_STATE);
@@ -1190,7 +1273,22 @@ function cleanState(s){
   out.mode = ['walking','transit','bicycling','driving'].includes(s.mode) ? s.mode : 'walking';
   out.check = (s.check && typeof s.check === 'object') ? Object.fromEntries(Object.entries(s.check).filter(([k,v]) => typeof k === 'string' && v === true)) : {};
   out.rate = Number(s.rate) > 0 ? Number(s.rate) : 1325;
+  out.rateAuto = s.rateAuto !== false;
+  out.rateAt = Number(s.rateAt) || 0;
   out.big = !!s.big;
+  const day = v => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : '';
+  if (s.trip && typeof s.trip === 'object') out.trip = {start:day(s.trip.start), end:day(s.trip.end)};
+  const h = s.hotel;
+  if (h && typeof h.name === 'string' && isFinite(h.lat) && isFinite(h.lng)) out.hotel = {name:h.name.slice(0, 80), addr:String(h.addr || '').slice(0, 160), lat:+h.lat, lng:+h.lng};
+  const e = s.exp;
+  if (e && Array.isArray(e.people)){
+    const people = e.people.filter(x => x && Number.isInteger(+x.id) && typeof x.name === 'string' && x.name).map(x => ({id:+x.id, name:x.name.slice(0, 10)}));
+    const ids = new Set(people.map(x => x.id));
+    const items = (Array.isArray(e.items) ? e.items : []).filter(i => i && +i.amt > 0 && ids.has(+i.payer)).map(i => ({
+      id:+i.id || 0, title:String(i.title || '').slice(0, 30), amt:+i.amt, cur:i.cur === 'KRW' ? 'KRW' : 'USD', payer:+i.payer,
+      split:(Array.isArray(i.split) ? i.split.map(Number) : []).filter(x => ids.has(x)), at:+i.at || 0})).filter(i => i.split.length);
+    if (people.length) out.exp = {people, items, seq:Math.max(Number(e.seq) || 0, ...people.map(x => x.id + 1), ...items.map(i => i.id + 1))};
+  }
   out.updatedAt = Number(s.updatedAt) || 0;
   return out;
 }
@@ -1199,10 +1297,10 @@ let state = loadState();
 function saveState(){
   state.updatedAt = Date.now();
   try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch(e) {}
-  queueSync();
 }
+const HOTEL_DEFAULT = (({ko, en, hood, lat, lng, q, resTip, must, desc}) => ({ko, en, hood, lat, lng, q, resTip, must, desc}))(P[BASE.hotel]);
 
-const ui = {cat:'ALL', res:'ALL', area:'ALL', q:'', sort:'rec', unvisited:false, sel:34, open:new Set(), plan:'d0', course:'NONE', caution:true, routeLine:true, basis:'sub', tip:18, view:'places'};
+const ui = {hotelHits:[], cat:'ALL', res:'ALL', area:'ALL', q:'', sort:'rec', unvisited:false, sel:34, open:new Set(), plan:'d0', course:'NONE', caution:true, routeLine:true, basis:'sub', tip:18, view:'places'};
 
 /* =================== HELPERS =================== */
 const $ = (s, r=document) => r.querySelector(s);
@@ -1599,7 +1697,7 @@ function openButtons(ids, mode, label){
   return html;
 }
 function renderPlan(){
-  renderPlanSeg();
+  renderPlanSeg(); renderTrip();
   const body = $('#planBody');
   if (ui.plan === 'my') { body.innerHTML = routeHTML(); return; }
   const d = DAYS[+ui.plan.slice(1)];
@@ -1694,7 +1792,8 @@ function tickClock(){
     const t = tz => new Intl.DateTimeFormat('ko-KR', {timeZone:tz, hour:'numeric', minute:'2-digit'}).format(now);
     const d = tz => new Intl.DateTimeFormat('ko-KR', {timeZone:tz, month:'long', day:'numeric', weekday:'short'}).format(now);
     const diff = Math.round((tzParts('Asia/Seoul') - tzParts('America/Los_Angeles')) / 3600000);
-    $('#clockLine').textContent = `SF ${d('America/Los_Angeles')} ${t('America/Los_Angeles')} · 서울 ${t('Asia/Seoul')}`;
+    $('#clockLine').innerHTML = `SF <span class="cd">${d('America/Los_Angeles')} </span>${t('America/Los_Angeles')} · 서울 ${t('Asia/Seoul')}`;
+    renderTrip();
     $('#clkSF').textContent = t('America/Los_Angeles'); $('#clkSFd').textContent = d('America/Los_Angeles');
     $('#clkKR').textContent = t('Asia/Seoul'); $('#clkKRd').textContent = d('Asia/Seoul');
     const call = diff === 16 ? 'SF 오후 5~7시가 서울 오전 9~11시입니다' : 'SF 오후 4~6시가 서울 오전 9~11시입니다';
@@ -1776,50 +1875,192 @@ function measure(){
   if (map) requestAnimationFrame(() => map.invalidateSize());
 }
 
-/* =================== SYNC (phone <-> PC) =================== */
-const sync = {ref:null, writing:false, pending:false, timer:null};
-const SYNC_TXT = {local:'이 기기에 저장', connecting:'동기화 연결 중', saving:'저장 중', synced:'폰·PC 동기화', error:'동기화 오류'};
-function setSync(s){ const c = $('#syncChip'); c.dataset.s = s; $('#syncLabel').textContent = SYNC_TXT[s] || s; }
-function pick(s){ const c = cleanState(s); return {fav:c.fav, visited:c.visited, route:c.route, mode:c.mode, check:c.check, rate:c.rate, big:c.big, updatedAt:c.updatedAt}; }
-function applyRemote(d){
-  state = cleanState(d);
-  try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch(e) {}
-  applySize(); $('#calcRate').value = state.rate; renderAll();
+/* =================== TRIP DATES =================== */
+const sfToday = () => new Intl.DateTimeFormat('en-CA', {timeZone:'America/Los_Angeles'}).format(new Date());
+const dayDiff = (a, b) => Math.round((Date.parse(a) - Date.parse(b)) / 864e5);
+function tripStatus(){
+  const {start, end} = state.trip;
+  if (!start) return null;
+  const today = sfToday(), d = dayDiff(start, today);
+  if (d > 0) return {k:'before', d};
+  if (end && end >= start && dayDiff(today, end) > 0) return {k:'after'};
+  return {k:'during', n:1 - d};
 }
-function queueSync(){ if (!sync.ref) return; clearTimeout(sync.timer); sync.timer = setTimeout(pushNow, 1200); }
-async function pushNow(){
-  if (!sync.ref) return;
-  if (sync.writing){ sync.pending = true; return; }
-  sync.writing = true; setSync('saving');
-  try { await sync.ref.set(pick(state)); setSync('synced'); }
-  catch(e){ if (e && (e.code === 'invalid_argument' || e.code === 'revoked' || e.code === 'not_granted')){ sync.ref = null; setSync('local'); } else setSync('error'); }
-  finally { sync.writing = false; if (sync.pending){ sync.pending = false; pushNow(); } }
+function renderTrip(){
+  const t = tripStatus(), chip = $('#tripChip');
+  chip.hidden = !t || t.k === 'after';
+  if (t && t.k !== 'after'){
+    chip.textContent = t.k === 'before' ? `D-${t.d}` : `여행 ${t.n}일째`;
+    chip.classList.toggle('on', t.k === 'during');
+  }
+  let html;
+  if (!t) html = `<span class="grow">여행 날짜를 넣으면 D-day와 오늘 일정이 자동으로 나옵니다.</span><button type="button" class="btn sm" data-act="goto-settings">날짜 설정</button>`;
+  else if (t.k === 'before') html = `<span class="dd">D-${t.d}</span><span class="grow">출발까지 ${t.d}일 남았습니다.${t.d <= 7 ? ' 체크리스트를 확인하세요.' : ''}</span><button type="button" class="btn sm" data-go="info">체크리스트</button>`;
+  else if (t.k === 'after') html = `<span class="grow">여행이 끝났습니다. 경비 정산을 마무리하세요.</span><button type="button" class="btn sm" data-act="goto-exp">경비 정산</button>`;
+  else {
+    const day = DAYS[t.n - 1];
+    html = `<span class="dd">${t.n}일째</span><span class="grow">${day ? `오늘 추천 일정: ${esc(day.day)} ${esc(day.title)}` : '추천 일정이 없는 날입니다. 내 동선을 활용하세요.'}</span>` +
+      (day && ui.plan !== 'd' + (t.n - 1) ? `<button type="button" class="btn sm primary" data-act="plan" data-plan="d${t.n - 1}">오늘 일정 보기</button>` : '');
+  }
+  const ban = $('#tripBanner'), next = `<div class="trip-banner">${html}</div>`;
+  if (ban.innerHTML !== next) ban.innerHTML = next;
 }
-async function initSync(){
-  if (!window.claude || typeof window.claude.use !== 'function'){ setSync('local'); return; }
+
+/* =================== HOTEL =================== */
+function applyHotel(){
+  const h = state.hotel, p = P[BASE.hotel];
+  if (!h) Object.assign(p, HOTEL_DEFAULT);
+  else Object.assign(p, {ko:h.name, en:h.name, hood:h.addr || '직접 지정한 위치', lat:h.lat, lng:h.lng,
+    q:h.addr ? `${h.name} ${h.addr}` : `${h.lat},${h.lng}`, resTip:h.addr || '지도에서 직접 지정한 위치입니다.',
+    must:'여행 설정에서 지정한 숙소입니다', desc:'여행 설정에서 직접 지정한 숙소입니다. 거리와 길찾기가 이 위치를 기준으로 계산됩니다.'});
+  $('#baseHotel').href = gDir(p, 'walking');
+  $('#baseHotelName').textContent = h ? h.name : 'Inn at Union Sq';
+  $('#hotelNow').innerHTML = `지금 숙소: <b>${esc(p.ko)}</b>${h ? '' : ' (기본값)'}<br><small style="color:var(--ink-3)">${esc(h ? (h.addr || `${h.lat.toFixed(5)}, ${h.lng.toFixed(5)}`) : '440 Post St, San Francisco')}</small>`;
+  $('#hotelResetBtn').hidden = !h;
+}
+function setHotel(h){
+  state.hotel = h; saveState(); applyHotel(); renderAll();
+  $('#hotelResults').innerHTML = ''; $('#hotelQ').value = ''; ui.hotelHits = [];
+  toast(h ? `숙소를 ${h.name}(으)로 바꿨습니다` : '기본 숙소로 되돌렸습니다');
+}
+async function searchHotel(){
+  const q = $('#hotelQ').value.trim(), box = $('#hotelResults');
+  if (!q) return;
+  box.innerHTML = `<p class="note">찾는 중입니다…</p>`;
   try {
-    setSync('connecting');
-    const [db, user] = await Promise.all([window.claude.use('db'), window.claude.use('user')]);
-    if (!db || !user){ setSync('local'); return; }
-    const id = await user.id();
-    if (!id){ setSync('local'); return; }
-    sync.ref = db.doc('data/users/' + id + '/sfguide');
-    let first = true;
-    sync.ref.onSnapshot(snap => {
-      if (snap.metadata && snap.metadata.hasPendingWrites) return;
-      const d = snap.exists ? snap.data() : null;
-      const remoteAt = d ? Number(d.updatedAt) || 0 : 0;
-      if (first){
-        first = false;
-        if (d && remoteAt > state.updatedAt){ applyRemote(d); setSync('synced'); }
-        else if (state.updatedAt > remoteAt){ pushNow(); }
-        else setSync(d ? 'synced' : 'local');
-        return;
-      }
-      if (d && remoteAt > state.updatedAt){ applyRemote(d); toast('다른 기기에서 바꾼 내용을 불러왔습니다'); }
-      if (sync.ref && !sync.writing) setSync('synced');
-    }, () => { sync.ref = null; setSync('local'); });
-  } catch(e){ sync.ref = null; setSync('local'); }
+    const r = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=5&countrycodes=us&viewbox=-122.53,37.84,-122.35,37.70&bounded=1&q=${enc(q)}`);
+    const list = await r.json();
+    ui.hotelHits = list.map(x => {
+      const a = x.address || {};
+      return {name:(x.name || x.display_name.split(',')[0]).slice(0, 80), addr:[[a.house_number, a.road].filter(Boolean).join(' '), a.city || 'San Francisco'].filter(Boolean).join(', '), lat:+x.lat, lng:+x.lon};
+    });
+    box.innerHTML = ui.hotelHits.length
+      ? ui.hotelHits.map((h, i) => `<button type="button" data-act="hotel-pick" data-i="${i}">${esc(h.name)}<small>${esc(h.addr)}</small></button>`).join('')
+      : `<p class="note">샌프란시스코 안에서 찾지 못했습니다. 영어 이름이나 주소(예: 222 Mason St)로 다시 찾아보세요.</p>`;
+  } catch(e){ box.innerHTML = `<p class="note">검색하려면 인터넷 연결이 필요합니다.</p>`; }
+}
+function hotelHere(){
+  if (!navigator.geolocation){ toast('이 브라우저는 위치 기능을 지원하지 않습니다'); return; }
+  toast('현재 위치를 찾는 중입니다');
+  navigator.geolocation.getCurrentPosition(pos => {
+    const lat = pos.coords.latitude, lng = pos.coords.longitude;
+    if (!(lat > 37.6 && lat < 37.95 && lng > -122.6 && lng < -122.3)){ toast('샌프란시스코 안에 있을 때만 지금 위치를 숙소로 정할 수 있습니다'); return; }
+    setHotel({name:'내 숙소', addr:'', lat:+lat.toFixed(6), lng:+lng.toFixed(6)});
+  }, err => toast(err && err.code === 1 ? '위치 권한이 꺼져 있습니다' : '위치를 찾지 못했습니다'), {enableHighAccuracy:true, timeout:12000});
+}
+
+/* =================== EXCHANGE RATE =================== */
+async function refreshRate(force){
+  if (force || (state.rateAuto && Date.now() - state.rateAt > 6 * 3600e3)){
+    try {
+      const j = await (await fetch('https://open.er-api.com/v6/latest/USD')).json();
+      const v = j && j.rates && +j.rates.KRW;
+      if (!(v > 500 && v < 5000)) throw new Error('bad rate');
+      state.rate = Math.round(v); state.rateAt = Date.now(); state.rateAuto = true; saveState();
+      $('#calcRate').value = state.rate; calc(); renderExp();
+      if (force) toast(`환율을 1달러 ${state.rate.toLocaleString('ko-KR')}원으로 갱신했습니다`);
+    } catch(e){ if (force) toast('환율을 불러오지 못했습니다. 인터넷 연결을 확인하세요'); }
+  }
+  renderRateNote();
+}
+function renderRateNote(){
+  const r = state.rate.toLocaleString('ko-KR');
+  const when = state.rateAt ? new Intl.DateTimeFormat('ko-KR', {month:'long', day:'numeric', hour:'numeric', minute:'2-digit'}).format(new Date(state.rateAt)) : '';
+  const t = !state.rateAuto ? `환율 ${r}원은 직접 입력한 값입니다.`
+    : when ? `환율 ${r}원은 ${when}에 자동으로 받아온 값입니다.` : `환율 ${r}원은 기본값입니다. 인터넷에 연결되면 최신 환율로 바뀝니다.`;
+  $('#rateNote').innerHTML = `${t} <button type="button" class="link-btn" data-act="rate-refresh">${state.rateAuto ? '지금 갱신' : '자동 환율로 되돌리기'}</button>`;
+}
+
+/* =================== EXPENSES =================== */
+const expDraft = {cur:'USD', split:null};
+const won = n => Math.round(n).toLocaleString('ko-KR') + '원';
+const toKRW = i => i.cur === 'KRW' ? i.amt : i.amt * state.rate;
+const pName = id => (state.exp.people.find(x => x.id === id) || {name:'?'}).name;
+function settle(){
+  const bal = new Map(state.exp.people.map(p => [p.id, {paid:0, owe:0}]));
+  state.exp.items.forEach(i => {
+    const k = toKRW(i); bal.get(i.payer).paid += k;
+    i.split.forEach(id => bal.get(id).owe += k / i.split.length);
+  });
+  const rows = [...bal].map(([id, b]) => ({id, paid:b.paid, owe:b.owe, net:b.paid - b.owe}));
+  const cr = rows.filter(x => x.net > 0.5).map(x => ({id:x.id, r:x.net})).sort((a, b) => b.r - a.r);
+  const db = rows.filter(x => x.net < -0.5).map(x => ({id:x.id, r:-x.net})).sort((a, b) => b.r - a.r);
+  const xfers = []; let i = 0, j = 0;
+  while (i < db.length && j < cr.length){
+    const m = Math.min(db[i].r, cr[j].r);
+    if (m >= 1) xfers.push({from:db[i].id, to:cr[j].id, amt:m});
+    db[i].r -= m; cr[j].r -= m;
+    if (db[i].r < 0.5) i++;
+    if (cr[j].r < 0.5) j++;
+  }
+  return {rows, xfers, total:state.exp.items.reduce((s, i) => s + toKRW(i), 0)};
+}
+function renderExp(){
+  const ex = state.exp, all = ex.people.map(p => p.id);
+  const split = expDraft.split ? expDraft.split.filter(id => all.includes(id)) : all;
+  $('#expPeople').innerHTML = ex.people.map(p => `<button type="button" data-act="exp-del-person" data-pid="${p.id}" aria-label="${esc(p.name)} 빼기">${esc(p.name)}<span class="x">✕</span></button>`).join('');
+  const payer = +$('#expPayer').value;
+  $('#expPayer').innerHTML = ex.people.map(p => `<option value="${p.id}"${p.id === payer ? ' selected' : ''}>${esc(p.name)}</option>`).join('');
+  $('#expSplit').innerHTML = ex.people.map(p => `<button type="button" data-act="exp-split" data-pid="${p.id}" aria-pressed="${split.includes(p.id)}">${esc(p.name)}</button>`).join('');
+  $$('#expCurSeg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.cur === expDraft.cur));
+  $('#expList').innerHTML = ex.items.slice().reverse().map(i => `<li>
+      <div class="t"><strong>${esc(i.title || '지출')}</strong><small>${esc(pName(i.payer))} 결제 · ${i.split.length === all.length ? '모두' : i.split.map(pName).map(esc).join(', ')} ${i.split.length}명</small></div>
+      <div class="amt">${i.cur === 'USD' ? money(i.amt) : won(i.amt)}${i.cur === 'USD' ? `<small>≈ ${won(toKRW(i))}</small>` : ''}</div>
+      <button type="button" class="icon-btn sm" data-act="exp-del" data-eid="${i.id}" aria-label="지출 삭제">${icon('i-trash','sm')}</button></li>`).join('');
+  if (!ex.items.length){ $('#expResult').innerHTML = `<p class="note" style="margin-top:12px">아직 기록된 지출이 없습니다.</p>`; return; }
+  const r = settle();
+  $('#expResult').innerHTML = `<p class="sub-h">정산 결과 · 총 ${won(r.total)}${ex.items.some(i => i.cur === 'USD') ? ` (1달러 ${state.rate.toLocaleString('ko-KR')}원 기준)` : ''}</p>
+    <div class="settle">
+      ${r.xfers.length ? r.xfers.map(x => `<div class="xfer"><span>${esc(pName(x.from))} → ${esc(pName(x.to))}</span><span class="num">${won(x.amt)}</span></div>`).join('') : `<p class="note">주고받을 돈이 없습니다.</p>`}
+      ${r.rows.map(x => `<div class="bal"><span>${esc(pName(x.id))}</span><span>낸 돈 ${won(x.paid)} · 쓴 돈 ${won(x.owe)}</span></div>`).join('')}
+    </div>
+    <div class="actions" style="margin-top:12px">
+      <button type="button" class="btn primary" data-act="exp-copy">${icon('i-copy','sm')}정산 결과 복사</button>
+      <button type="button" class="btn" data-act="exp-clear">${icon('i-trash','sm')}전체 기록 지우기</button>
+    </div>`;
+}
+function expText(){
+  const r = settle(), lines = [`[샌프란꼬 경비 정산]`, `총 지출 ${won(r.total)}${state.exp.items.some(i => i.cur === 'USD') ? ` (1달러 ${state.rate.toLocaleString('ko-KR')}원 기준)` : ''}`, ''];
+  r.xfers.forEach(x => lines.push(`${pName(x.from)} → ${pName(x.to)}: ${won(x.amt)}`));
+  if (!r.xfers.length) lines.push('주고받을 돈이 없습니다.');
+  lines.push('', '[지출 내역]');
+  state.exp.items.forEach(i => lines.push(`- ${i.title || '지출'}: ${i.cur === 'USD' ? money(i.amt) : won(i.amt)} (${pName(i.payer)} 결제)`));
+  return lines.join('\n');
+}
+function addPerson(){
+  const inp = $('#expNewName'), name = inp.value.trim().slice(0, 10);
+  if (!name) return;
+  if (state.exp.people.some(p => p.name === name)){ toast('이미 있는 이름입니다'); return; }
+  const id = state.exp.seq++;
+  state.exp.people.push({id, name});
+  if (expDraft.split) expDraft.split.push(id);
+  inp.value = ''; saveState(); renderExp();
+}
+function addExpense(){
+  const amt = parseFloat($('#expAmt').value), payer = +$('#expPayer').value;
+  const all = state.exp.people.map(p => p.id);
+  const split = expDraft.split ? expDraft.split.filter(id => all.includes(id)) : all;
+  if (!(amt > 0)){ toast('금액을 입력하세요'); $('#expAmt').focus(); return; }
+  if (!split.length){ toast('같이 쓴 사람을 한 명 이상 고르세요'); return; }
+  state.exp.items.push({id:state.exp.seq++, title:$('#expTitle').value.trim().slice(0, 30), amt:Math.round(amt * 100) / 100, cur:expDraft.cur, payer, split, at:Date.now()});
+  $('#expTitle').value = ''; $('#expAmt').value = '';
+  saveState(); renderExp(); toast('지출을 기록했습니다');
+}
+
+/* =================== INSTALL TIP =================== */
+let installEvt = null;
+function initInstallTip(){
+  const KEY = 'sfguide.installTip';
+  const standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  let off = false; try { off = localStorage.getItem(KEY) === 'off'; } catch(e) {}
+  if (standalone || off) return;
+  const tip = $('#installTip'), show = html => { $('#installText').innerHTML = html; tip.hidden = false; };
+  const ios = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  if (ios) show('<b>홈 화면에 추가</b>하면 앱처럼 쓸 수 있어요.<br>공유 버튼 → [홈 화면에 추가]');
+  window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; $('#installGo').hidden = false; show('<b>샌프란꼬</b>를 설치하면 앱처럼 열리고 오프라인에서도 쓸 수 있어요.'); });
+  $('#installGo').addEventListener('click', async () => { if (!installEvt) return; installEvt.prompt(); try { await installEvt.userChoice; } catch(e) {} installEvt = null; tip.hidden = true; });
+  $('#installClose').addEventListener('click', () => { tip.hidden = true; try { localStorage.setItem(KEY, 'off'); } catch(e) {} });
+  window.addEventListener('appinstalled', () => { tip.hidden = true; });
 }
 
 /* =================== EVENTS =================== */
@@ -1870,7 +2111,7 @@ document.addEventListener('click', e => {
     case 'hide-course': ui.course = 'NONE'; drawCourse(false); break;
     case 'fit': fitAll(); break;
     case 'locate': locateMe(); break;
-    case 'center-hotel': if (map) map.flyTo([37.7868, -122.4060], 15.75, {duration:.6}); break;
+    case 'center-hotel': if (map) map.flyTo([P[BASE.hotel].lat, P[BASE.hotel].lng], 15.75, {duration:.6}); break;
     case 'plan': ui.plan = a.dataset.plan; renderPlan(); break;
     case 'load-day': state.route = [...DAYS[+a.dataset.day].stops]; ui.plan = 'my'; afterRouteChange(); renderPlan(); renderList(); toast(`${DAYS[+a.dataset.day].day} 코스를 내 동선으로 불러왔습니다`); break;
     case 'mode': state.mode = a.dataset.mode; saveState(); renderPlan(); break;
@@ -1884,6 +2125,27 @@ document.addEventListener('click', e => {
     case 'r-del': { const rid = state.route[+a.dataset.i]; state.route.splice(+a.dataset.i, 1); afterRouteChange(); refreshCard(rid); break; }
     case 'tip': ui.tip = +a.dataset.tip; renderTips(); calc(); break;
     case 'chk-daily': CHECK[1].items.forEach(([k]) => delete state.check[k]); saveState(); renderChecklist(); break;
+    case 'goto-settings': case 'goto-exp': {
+      const el = a.dataset.act === 'goto-exp' ? '#expPanel' : '#setPanel';
+      go('info'); setTimeout(() => $(el).scrollIntoView({behavior:'smooth', block:'start'}), 120); break; }
+    case 'hotel-search': searchHotel(); break;
+    case 'hotel-pick': { const h = ui.hotelHits[+a.dataset.i]; if (h) setHotel(h); break; }
+    case 'hotel-here': hotelHere(); break;
+    case 'hotel-reset': setHotel(null); break;
+    case 'rate-refresh': refreshRate(true); break;
+    case 'exp-add-person': addPerson(); break;
+    case 'exp-del-person': {
+      const pid = +a.dataset.pid;
+      if (state.exp.items.some(i => i.payer === pid || i.split.includes(pid))){ toast('지출 기록에 들어 있는 사람은 뺄 수 없습니다'); break; }
+      if (state.exp.people.length <= 1){ toast('일행은 한 명 이상 있어야 합니다'); break; }
+      state.exp.people = state.exp.people.filter(p => p.id !== pid); saveState(); renderExp(); break; }
+    case 'exp-split': {
+      const pid = +a.dataset.pid, cur = expDraft.split || state.exp.people.map(p => p.id);
+      expDraft.split = cur.includes(pid) ? cur.filter(x => x !== pid) : [...cur, pid]; renderExp(); break; }
+    case 'exp-add': addExpense(); break;
+    case 'exp-del': state.exp.items = state.exp.items.filter(i => i.id !== +a.dataset.eid); saveState(); renderExp(); toast('지출을 지웠습니다'); break;
+    case 'exp-copy': copyText(expText(), '정산 결과'); break;
+    case 'exp-clear': if (confirm('지출 기록을 모두 지울까요? 일행 이름은 남겨 둡니다.')){ state.exp.items = []; saveState(); renderExp(); } break;
   }
 });
 document.addEventListener('change', e => {
@@ -1901,7 +2163,16 @@ document.addEventListener('change', e => {
 $('#basisSeg').addEventListener('click', e => { const b = e.target.closest('[data-basis]'); if (!b) return; ui.basis = b.dataset.basis; renderTips(); calc(); });
 ['calcAmt', 'calcPpl'].forEach(id => $('#' + id).addEventListener('input', calc));
 let rateTimer = null;
-$('#calcRate').addEventListener('input', () => { calc(); clearTimeout(rateTimer); rateTimer = setTimeout(() => { const v = parseFloat($('#calcRate').value); if (v > 0){ state.rate = v; saveState(); } }, 800); });
+$('#calcRate').addEventListener('input', () => { calc(); clearTimeout(rateTimer); rateTimer = setTimeout(() => { const v = parseFloat($('#calcRate').value); if (v > 0){ state.rate = v; state.rateAuto = false; saveState(); renderRateNote(); renderExp(); } }, 800); });
+window.addEventListener('online', () => refreshRate(false));
+$('#expCurSeg').addEventListener('click', e => { const b = e.target.closest('[data-cur]'); if (!b) return; expDraft.cur = b.dataset.cur; renderExp(); });
+$('#expNewName').addEventListener('keydown', e => { if (e.key === 'Enter') addPerson(); });
+$('#hotelQ').addEventListener('keydown', e => { if (e.key === 'Enter') searchHotel(); });
+['tripStart', 'tripEnd'].forEach(id => $('#' + id).addEventListener('change', () => {
+  const st = $('#tripStart').value, en = $('#tripEnd').value;
+  if (st && en && en < st){ toast('떠나는 날이 도착일보다 빠릅니다'); return; }
+  state.trip = {start:st, end:en}; saveState(); renderTrip();
+}));
 let qTimer = null;
 $('#q').addEventListener('input', e => { ui.q = e.target.value; $('#qClear').hidden = !ui.q; clearTimeout(qTimer); qTimer = setTimeout(renderList, 120); });
 $('#qClear').addEventListener('click', () => { ui.q = ''; $('#q').value = ''; $('#qClear').hidden = true; renderList(); $('#q').focus(); });
@@ -1911,10 +2182,6 @@ $('#areaSel').addEventListener('change', e => { ui.area = e.target.value; render
 $('#unvisitedBtn').addEventListener('click', e => { ui.unvisited = !ui.unvisited; e.currentTarget.setAttribute('aria-pressed', ui.unvisited); renderList(); });
 $('#resetBtn').addEventListener('click', resetFilters);
 $('#sizeBtn').addEventListener('click', () => { state.big = !state.big; saveState(); applySize(); toast(state.big ? '글자를 크게 했습니다' : '기본 글자 크기로 돌렸습니다'); });
-$('#syncChip').addEventListener('click', () => {
-  const s = $('#syncChip').dataset.s;
-  toast(s === 'synced' ? '즐겨찾기·다녀옴·동선·체크리스트가 같은 계정의 폰과 PC에서 함께 저장됩니다' : '즐겨찾기·동선·체크리스트는 이 브라우저에 저장됩니다. 로그인 없이도 모든 기능을 쓸 수 있습니다');
-});
 $('#layerBtn').addEventListener('click', e => { const p = $('#layerPanel'); p.hidden = !p.hidden; e.currentTarget.setAttribute('aria-expanded', !p.hidden); });
 $('#courseSel').addEventListener('change', e => { ui.course = e.target.value; drawCourse(true); });
 $('#cautionChk').addEventListener('change', e => { ui.caution = e.target.checked; drawCaution(); });
@@ -1925,23 +2192,28 @@ window.addEventListener('resize', () => { clearTimeout(rzTimer); rzTimer = setTi
 
 /* =================== INIT =================== */
 (function init(){
-  $('#baseHotel').href = gDir(P[34], 'walking');
+  applyHotel();
   $('#baseConf').href = gDir(P[35], 'walking');
   $('#baseMarq').href = gDir(P[36], 'walking');
   $('#areaSel').innerHTML = AREAS.map(([v, t]) => `<option value="${v}">${esc(t)}</option>`).join('');
   $('#calcRate').value = state.rate;
+  $('#tripStart').value = state.trip.start; $('#tripEnd').value = state.trip.end;
+  const ts = tripStatus();
+  if (ts && ts.k === 'during' && DAYS[ts.n - 1]) ui.plan = 'd' + (ts.n - 1);
   applySize();
   renderLegend(); renderCatChips(); renderList(); renderSheet(); renderCourses();
-  renderTips(); calc(); renderContacts(); renderChecklist(); updateRouteCounts();
+  renderTips(); calc(); renderContacts(); renderChecklist(); updateRouteCounts(); renderExp(); refreshRate(false);
   tickClock(); setInterval(tickClock, 30000);
   measure();
   applyRoute();
-  initSync();
+  initInstallTip();
 })();
 </script>
 
 <script>
 if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+  const hadSW = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener('controllerchange', () => { if (hadSW) toast('샌프란꼬가 새 버전으로 업데이트됐어요'); });
   window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
 }
 </script>

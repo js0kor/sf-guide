@@ -1,5 +1,5 @@
 // Bump this when you deploy changes so installed copies pick up the new version.
-const VERSION = 'sf-guide-v3';
+const VERSION = 'sf-guide-v4';
 const CORE = [
   './', './index.html', './manifest.webmanifest',
   './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png',
