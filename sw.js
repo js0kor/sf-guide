@@ -1,5 +1,8 @@
 // Bump this when you deploy changes so installed copies pick up the new version.
-const VERSION = 'sf-guide-v4';
+const VERSION = 'sf-guide-v5';
+// Map tiles live in their own cache so they survive version bumps; capped to keep storage small.
+const TILES = 'sf-tiles-v1';
+const TILE_MAX = 800;
 const CORE = [
   './', './index.html', './manifest.webmanifest',
   './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png',
@@ -13,13 +16,14 @@ self.addEventListener('install', e => {
 });
 
 self.addEventListener('activate', e => {
-  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== VERSION).map(k => caches.delete(k)))).then(() => self.clients.claim()));
+  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== VERSION && k !== TILES).map(k => caches.delete(k)))).then(() => self.clients.claim()));
 });
 
 self.addEventListener('fetch', e => {
   const req = e.request;
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
+  if (url.host === 'tile.openstreetmap.org') { e.respondWith(tile(req)); return; }
   const cacheable = url.origin === location.origin || /cdnjs\.cloudflare\.com|fonts\.(googleapis|gstatic)\.com/.test(url.host);
   if (!cacheable) return;
   // Pages: network first (fresh content). Everything else: cache first (fast, works offline).
@@ -33,3 +37,14 @@ self.addEventListener('fetch', e => {
     return res;
   })));
 });
+
+// Tiles: cache first, so areas you've already looked at still show offline.
+function tile(req) {
+  return caches.open(TILES).then(c => c.match(req).then(hit => hit || fetch(req).then(res => {
+    if (res.ok) c.put(req, res.clone()).then(() => trim(c));
+    return res;
+  })));
+}
+function trim(c) {
+  return c.keys().then(keys => keys.length > TILE_MAX && Promise.all(keys.slice(0, keys.length - TILE_MAX).map(k => c.delete(k))));
+}
