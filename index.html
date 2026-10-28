@@ -600,6 +600,9 @@ button{cursor:pointer}
           <div class="map-tools tl">
             <button type="button" class="tool-btn" id="layerBtn" aria-expanded="false" aria-controls="layerPanel"><svg class="ico"><use href="#i-layers"/></svg>레이어·범례</button>
             <div class="layer-panel" id="layerPanel" hidden>
+              <div style="display:flex;flex-direction:column;gap:4px"><span style="font-size:.8125rem;color:var(--ink-3);font-weight:600">지도 스타일</span>
+                <div class="seg" id="basemapSeg" role="group" aria-label="지도 스타일"></div>
+              </div>
               <label for="courseSel" style="flex-direction:column;align-items:stretch;gap:4px"><span style="font-size:.8125rem;color:var(--ink-3);font-weight:600">러닝·자전거·통근 코스</span>
                 <select id="courseSel"></select>
               </label>
@@ -846,7 +849,7 @@ button{cursor:pointer}
         <div class="panel">
           <h3><svg class="ico"><use href="#i-info"/></svg>이 가이드의 정보 기준</h3>
           <p class="src" style="margin-top:8px">요금·운영 정보는 2026년 10월 28일에 다시 확인했습니다. 가격, 운영 시간, 예약 정책은 바뀔 수 있으니 방문 전 구글 지도나 공식 사이트에서 확인하세요. 거리와 시간은 직선거리에 보정치를 곱한 추정입니다.</p>
-          <p class="src" style="margin-top:8px">지도: © OpenStreetMap contributors (지도 타일·해안선), DataSF (SF 동네 경계). 주요 확인처: <a href="https://www.sfmta.com/index%2Ephp/notices/muni-fare-changes-effective-july-1-2025" target="_blank" rel="noopener">SFMTA 요금</a>, <a href="https://www.sfmta.com/projects/powered-scooter-share-program-permit" target="_blank" rel="noopener">SFMTA 킥보드 허가</a>, <a href="https://mofa.go.kr/us-sanfrancisco-en/wpge/m_4758/contents.do" target="_blank" rel="noopener">주샌프란시스코 총영사관</a>, <a href="https://www.sanfranciscopolice.org/contact-and-directory" target="_blank" rel="noopener">SFPD</a>.</p>
+          <p class="src" style="margin-top:8px">지도: Esri, HERE, Garmin, © OpenStreetMap contributors (지도 타일·해안선), DataSF (SF 동네 경계). 주요 확인처: <a href="https://www.sfmta.com/index%2Ephp/notices/muni-fare-changes-effective-july-1-2025" target="_blank" rel="noopener">SFMTA 요금</a>, <a href="https://www.sfmta.com/projects/powered-scooter-share-program-permit" target="_blank" rel="noopener">SFMTA 킥보드 허가</a>, <a href="https://mofa.go.kr/us-sanfrancisco-en/wpge/m_4758/contents.do" target="_blank" rel="noopener">주샌프란시스코 총영사관</a>, <a href="https://www.sanfranciscopolice.org/contact-and-directory" target="_blank" rel="noopener">SFPD</a>.</p>
         </div>
       </div>
     </div>
@@ -1290,7 +1293,7 @@ const CHECK = [
 
 /* =================== STATE =================== */
 const STORE_KEY = 'sfguide.v2';
-const DEFAULT_STATE = {fav:[], visited:[], route:[34,36,35], mode:'walking', check:{}, rate:1325, rateAuto:true, rateAt:0,
+const DEFAULT_STATE = {fav:[], visited:[], route:[34,36,35], mode:'walking', check:{}, rate:1325, rateAuto:true, rateAt:0, basemap:'gray',
   trip:{start:'', end:''}, hotel:null, exp:{people:[{id:1, name:'나'}], items:[], seq:2}, updatedAt:0};
 const clone = o => JSON.parse(JSON.stringify(o));
 function cleanState(s){
@@ -1304,6 +1307,7 @@ function cleanState(s){
   out.rate = Number(s.rate) > 0 ? Number(s.rate) : 1325;
   out.rateAuto = s.rateAuto !== false;
   out.rateAt = Number(s.rateAt) || 0;
+  out.basemap = ['gray', 'street', 'osm'].includes(s.basemap) ? s.basemap : 'gray';
   const day = v => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : '';
   if (s.trip && typeof s.trip === 'object') out.trip = {start:day(s.trip.start), end:day(s.trip.end)};
   const h = s.hotel;
@@ -1523,6 +1527,23 @@ function refreshCard(id){
 
 /* =================== MAP =================== */
 let map = null, markers = {}, layers = {};
+const ESRI = 'https://server.arcgisonline.com/ArcGIS/rest/services/';
+const ESRI_ATTR = 'Tiles © <a href="https://www.esri.com/" target="_blank" rel="noopener">Esri</a>, HERE, Garmin, © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors';
+// gray: quiet backdrop so pins stand out; street: readable street names; osm: fallback if Esri ever blocks keyless use.
+const BASEMAPS = {
+  gray:   {label:'깔끔', url:ESRI + 'Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', labels:ESRI + 'Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}', native:16, attr:ESRI_ATTR},
+  street: {label:'상세', url:ESRI + 'World_Street_Map/MapServer/tile/{z}/{y}/{x}', native:19, attr:ESRI_ATTR},
+  osm:    {label:'OSM', url:'https://tile.openstreetmap.org/{z}/{x}/{y}.png', native:19, attr:'© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors'},
+};
+function renderBasemapSeg(){
+  $('#basemapSeg').innerHTML = Object.entries(BASEMAPS).map(([k, b]) => `<button type="button" data-act="basemap" data-map="${k}" aria-pressed="${state.basemap === k}">${b.label}</button>`).join('');
+}
+function setBasemap(k){
+  const b = BASEMAPS[k], opts = {maxZoom:18, maxNativeZoom:b.native, crossOrigin:true, keepBuffer:4, attribution:b.attr};
+  [layers.base, layers.labels].forEach(l => l && map.removeLayer(l));
+  layers.base = L.tileLayer(b.url, opts).addTo(map);
+  layers.labels = b.labels ? L.tileLayer(b.labels, {...opts, attribution:'', pane:'mapLabels'}).addTo(map) : null;
+}
 function zoomClass(){ if (!map) return; const z = map.getZoom(); map.getContainer().dataset.z = z < 12.75 ? 'lo' : z < 14.25 ? 'mid' : z < 15.75 ? 'near' : 'hi'; }
 function ensureMap(){
   if (map){ requestAnimationFrame(() => map.invalidateSize()); return true; }
@@ -1532,14 +1553,16 @@ function ensureMap(){
     maxBounds:L.latLngBounds([37.45,-122.85],[38.05,-121.55]), maxBoundsViscosity:0.7});
   map.setView([37.7920, -122.4250], 13);
   map.attributionControl.setPrefix(false);
-  map.attributionControl.addAttribution('© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors · DataSF');
+  map.attributionControl.addAttribution('DataSF');
   L.control.zoom({position:'topright', zoomInTitle:'확대', zoomOutTitle:'축소'}).addTo(map);
   // Built-in shapes sit under the tiles, so the map still works offline when tiles can't load.
   map.createPane('offline').style.zIndex = 150;
   L.geoJSON(MAPDATA.land, {pane:'offline', interactive:false, style:{className:'lf-land', stroke:false, fillOpacity:1}}).addTo(map);
   MAPDATA.parks.forEach(pk => L.geoJSON(pk.g, {pane:'offline', interactive:false, style:{className:'lf-park', stroke:false, fillOpacity:1}}).addTo(map));
   BRIDGES.forEach(b => L.polyline(b, {pane:'offline', className:'lf-bridge', weight:4, interactive:false}).addTo(map));
-  layers.base = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom:18, maxNativeZoom:19, crossOrigin:true, keepBuffer:4}).addTo(map);
+  map.createPane('mapLabels').style.zIndex = 380;
+  map.getPane('mapLabels').style.pointerEvents = 'none';
+  setBasemap(state.basemap);
   const lab = (t, c, k) => L.marker(c, {interactive:false, keyboard:false, zIndexOffset:-1000, icon:L.divIcon({className:'map-label-wrap', iconSize:[0,0], html:`<span class="map-label ${k}">${esc(t)}</span>`})}).addTo(map);
   Object.entries(MAPDATA.labels).forEach(([n, c]) => { if (HOOD_KO[n]) lab(HOOD_KO[n], c, 'hood'); });
   BIG_LABELS.forEach(l => lab(l.t, l.c, l.k));
@@ -2216,6 +2239,7 @@ document.addEventListener('click', e => {
     case 'copy-num': copyText(a.dataset.n, '번호'); break;
     case 'show-course': showCourse(a.dataset.course); break;
     case 'hide-course': ui.course = 'NONE'; drawCourse(false); break;
+    case 'basemap': state.basemap = a.dataset.map; saveState(); renderBasemapSeg(); if (map) setBasemap(state.basemap); break;
     case 'sheet-min': ui.sheetMin = !ui.sheetMin; renderSheet(); break;
     case 'route-map':
       go(isDesktop() ? 'places' : 'map');
@@ -2332,7 +2356,7 @@ window.addEventListener('resize', () => { clearTimeout(rzTimer); rzTimer = setTi
   $('#tripStart').value = state.trip.start; $('#tripEnd').value = state.trip.end;
   const ts = tripStatus();
   if (ts && ts.k === 'during' && DAYS[ts.n - 1]) ui.plan = 'd' + (ts.n - 1);
-  renderLegend(); renderCatChips(); renderList(); renderSheet(); renderCourses();
+  renderLegend(); renderBasemapSeg(); renderCatChips(); renderList(); renderSheet(); renderCourses();
   renderTips(); calc(); renderContacts(); renderChecklist(); updateRouteCounts(); renderExp(); refreshRate(false);
   tickClock(); setInterval(tickClock, 30000);
   renderOnline();

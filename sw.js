@@ -1,5 +1,5 @@
 // Bump this when you deploy changes so installed copies pick up the new version.
-const VERSION = 'sf-guide-v6';
+const VERSION = 'sf-guide-v7';
 // Map tiles live in their own cache so they survive version bumps; capped to keep storage small.
 const TILES = 'sf-tiles-v1';
 const TILE_MAX = 800;
@@ -23,7 +23,7 @@ self.addEventListener('fetch', e => {
   const req = e.request;
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
-  if (url.host === 'tile.openstreetmap.org') { e.respondWith(tile(req)); return; }
+  if (url.host === 'tile.openstreetmap.org' || url.host === 'server.arcgisonline.com') { e.respondWith(tile(req)); return; }
   const cacheable = url.origin === location.origin || /cdnjs\.cloudflare\.com|fonts\.(googleapis|gstatic)\.com/.test(url.host);
   if (!cacheable) return;
   // Pages: network first (fresh content). Everything else: cache first (fast, works offline).
