@@ -1,29 +1,37 @@
-# 샌프란꼬 (PWA)
+# 샌프란꼬 (Sanfrankko)
 
-샌프란시스코 여행 가이드를 폰 홈 화면에 설치해서 앱처럼 쓰는 웹앱입니다. 앱스토어 없이 링크만 공유하면 됩니다.
+A San Francisco travel guide that installs to your phone's home screen like an app (PWA). No app store needed: just share the link.
 
-## 파일 구성
-- `index.html` — 앱 본체 (지도 데이터 내장)
-- `manifest.webmanifest` — 앱 이름·아이콘·전체화면 설정
-- `sw.js` — 오프라인 캐시 (한 번 열면 인터넷 없이도 열림)
-- `icons/` — 홈 화면 아이콘
+**Live:** https://js0kor.github.io/sf-guide/
 
-## 로컬에서 미리보기
+## Features
+- Interactive map with places, categories, and distances from the hotel and conference venue
+- Suggested 3-day itinerary and a custom route planner
+- Running and cycling routes, plus bike and scooter rental info
+- Tip calculator, currency conversion, emergency contacts, and a packing checklist
+- Works offline once opened (map data is embedded in the page)
+
+## Files
+- `index.html`: the app (map data embedded)
+- `manifest.webmanifest`: app name, icons, and full-screen settings
+- `sw.js`: service worker for offline caching
+- `icons/`: home screen icons (`icon.svg` is the vector source)
+
+## Install on your phone
+- **iPhone:** open the link in Safari → Share → "Add to Home Screen"
+- **Android:** open the link in Chrome → menu (⋮) → "Install app" or "Add to Home screen"
+
+## Run locally
 ```
-cd travel_app
 python3 -m http.server 8765
 ```
-브라우저에서 http://localhost:8765 접속.
+Then open http://localhost:8765.
 
-## 친구들에게 공유하기
-폰에 설치하려면 HTTPS 주소가 필요합니다. 이 폴더 전체를 GitHub Pages, Netlify, Cloudflare Pages 중 한 곳에 올리고 주소를 공유하세요.
+## Updating
+After editing `index.html`, bump `VERSION` in `sw.js` (e.g. `sf-guide-v3` → `sf-guide-v4`) and push. Installed copies pick up the new version the next time they open.
 
-## 폰에 설치하는 법
-- **아이폰**: Safari로 링크 열기 → 공유 버튼 → "홈 화면에 추가"
-- **안드로이드**: Chrome으로 링크 열기 → 메뉴(⋮) → "앱 설치" 또는 "홈 화면에 추가"
+If the home screen icon or name doesn't update on a phone, remove the app from the home screen and add it again.
 
-## 내용을 수정했을 때
-`index.html`을 고친 뒤 `sw.js`의 `VERSION` 값(예: `sf-guide-v3` → `v4`)을 올려서 다시 올리면, 친구들 폰에도 다음 실행 때 반영됩니다.
-
-## 참고
-- 즐겨찾기·방문 기록·동선·체크리스트는 각자 폰에 저장됩니다 (기기 간 동기화는 없음).
+## Notes
+- Favorites, visited places, routes, and checklists are saved on each device only (no cross-device sync).
+- The app UI is in Korean.

@@ -1,4 +1,4 @@
-// 내용을 고친 뒤 배포할 때 버전 숫자를 올리면 친구들 폰에도 새 버전이 반영됩니다.
+// Bump this when you deploy changes so installed copies pick up the new version.
 const VERSION = 'sf-guide-v3';
 const CORE = [
   './', './index.html', './manifest.webmanifest',
@@ -22,7 +22,7 @@ self.addEventListener('fetch', e => {
   const url = new URL(req.url);
   const cacheable = url.origin === location.origin || /cdnjs\.cloudflare\.com|fonts\.(googleapis|gstatic)\.com/.test(url.host);
   if (!cacheable) return;
-  // 페이지는 네트워크 우선(최신 내용), 나머지는 캐시 우선(빠르고 오프라인 가능)
+  // Pages: network first (fresh content). Everything else: cache first (fast, works offline).
   if (req.mode === 'navigate') {
     e.respondWith(fetch(req).then(res => { caches.open(VERSION).then(c => c.put('./index.html', res.clone())); return res; })
       .catch(() => caches.match('./index.html')));
