@@ -1,6 +1,6 @@
 {
-  "name": "샌프란시스코 여행 마스터 가이드",
-  "short_name": "SF 가이드",
+  "name": "샌프란꼬",
+  "short_name": "샌프란꼬",
   "description": "숙소·학회장 기준 거리, 지도, 길찾기, 팁 계산기, 체크리스트",
   "lang": "ko",
   "start_url": "./",
