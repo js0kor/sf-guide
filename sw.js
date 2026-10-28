@@ -1,5 +1,5 @@
 // Bump this when you deploy changes so installed copies pick up the new version.
-const VERSION = 'sf-guide-v5';
+const VERSION = 'sf-guide-v6';
 // Map tiles live in their own cache so they survive version bumps; capped to keep storage small.
 const TILES = 'sf-tiles-v1';
 const TILE_MAX = 800;
@@ -28,7 +28,8 @@ self.addEventListener('fetch', e => {
   if (!cacheable) return;
   // Pages: network first (fresh content). Everything else: cache first (fast, works offline).
   if (req.mode === 'navigate') {
-    e.respondWith(fetch(req).then(res => { caches.open(VERSION).then(c => c.put('./index.html', res.clone())); return res; })
+    // no-cache: always ask the server (GitHub Pages sends max-age=600), so a deploy shows up on the next open.
+    e.respondWith(fetch(req, { cache: 'no-cache' }).then(res => { caches.open(VERSION).then(c => c.put('./index.html', res.clone())); return res; })
       .catch(() => caches.match('./index.html')));
     return;
   }
