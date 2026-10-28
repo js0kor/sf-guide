@@ -33,7 +33,7 @@ Then open http://localhost:8765.
 
 ### Phone preview in VS Code
 1. Install the recommended **Mobile Preview** extension (`lirobi.phone-preview`).
-2. Opening the folder starts the **앱 미리보기 서버** task (http://localhost:5173). Allow automatic tasks when VS Code asks, or run it from **Terminal → Run Task**.
+2. Opening the folder starts the **앱 미리보기 서버** task (http://127.0.0.1:5173). Allow automatic tasks when VS Code asks, or run it from **Terminal → Run Task**.
 3. Run **Mobile Preview: Show**. The app opens in an iPhone 17 frame (same 402×874 screen as iPhone 16 Pro) and reloads when you save.
 
 Alternative: the **Live Preview** extension with `.vscode/phone.html` shows several phone frames side by side.
