@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>샌프란꼬 폰 미리보기</title>
+<!-- Dev-only: shows ../index.html inside phone-sized frames. Open with Live Preview in VS Code. -->
+<style>
+:root{--bg:#1B2229;--panel:#252E36;--ink:#E6ECF0;--ink-2:#9AA8B3;--line:#33404B;--bezel:#0B0F12;--app-top:#13212C;--app-bottom:#FFFFFF;--app-bg:#ECF0F2}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font:14px/1.4 -apple-system,"Apple SD Gothic Neo",system-ui,sans-serif;display:flex;flex-direction:column}
+.bar{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;padding:8px 12px;background:var(--panel);border-bottom:1px solid var(--line)}
+.grp{display:flex;gap:4px;align-items:center}
+.grp > span{color:var(--ink-2);font-size:12px;margin-right:2px}
+button{font:inherit;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:8px;padding:5px 10px;cursor:pointer}
+button:hover{border-color:var(--ink-2)}
+button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.stage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;gap:28px;padding:16px;overflow:auto}
+.dev{display:flex;flex-direction:column;align-items:center;gap:8px;flex:none}
+.dev .label{color:var(--ink-2);font-size:12px}
+.box{flex:none}
+.frame{width:max-content;border-radius:62px;background:var(--bezel);padding:12px;box-shadow:0 20px 60px rgba(0,0,0,.45),inset 0 0 0 2px #3A434B;transform-origin:top left}
+.frame.plain{border-radius:44px}
+.screen{display:flex;flex-direction:column;border-radius:50px;overflow:hidden;background:var(--app-bottom)}
+.frame.plain .screen{border-radius:32px}
+.screen.land{flex-direction:row}
+.screen iframe{display:block;border:0;background:#fff}
+/* iOS status bar and home indicator, painted the way an installed web app shows them. */
+.status{position:relative;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 30px 0 34px;background:var(--app-top);color:#fff;font-weight:600;font-size:16px}
+.status .sys{display:flex;gap:6px;align-items:center}
+.island{position:absolute;left:50%;top:11px;width:124px;height:36px;margin-left:-62px;border-radius:20px;background:#000}
+.side{flex:none;position:relative;background:var(--app-bg)}
+.side .island{left:auto;top:50%;margin:0;width:36px;height:124px;margin-top:-62px;right:13px}
+.home{flex:none;display:flex;align-items:center;justify-content:center;background:var(--app-bottom)}
+.home i{display:block;width:140px;height:5px;border-radius:3px;background:#111}
+.col{display:flex;flex-direction:column}
+</style>
+</head>
+<body>
+<div class="bar">
+  <div class="grp" id="devices"><span>기기</span></div>
+  <div class="grp"><span>방향</span><button type="button" id="rotate">세로 ↔ 가로</button></div>
+  <div class="grp" id="screens"><span>화면</span></div>
+  <div class="grp"><span>보기</span><button type="button" id="both" aria-pressed="false">두 대 같이</button><button type="button" id="reload">새로고침</button></div>
+</div>
+<div class="stage" id="stage"></div>
+
+<script>
+// CSS viewport sizes. iPhones with a Dynamic Island also get their safe areas
+// (status bar / home indicator) drawn around the page, like the installed app.
+const DEVICES = {
+  iphone16pro:    {name:'iPhone 16 Pro', w:402, h:874, top:62, bottom:34, side:62, landBottom:21},
+  iphone16promax: {name:'iPhone 16 Pro Max', w:440, h:956, top:62, bottom:34, side:62, landBottom:21},
+  iphoneSE:       {name:'iPhone SE', w:375, h:667},
+  galaxy:         {name:'Galaxy S24', w:360, h:780},
+};
+const DEFAULT_DEV = 'iphone16pro';
+const SCREENS = [['places', '장소'], ['map', '지도'], ['plan', '일정'], ['courses', '코스'], ['info', '도구']];
+const KEY = 'sfguide-phone-preview';
+let st = {dev:DEFAULT_DEV, land:false, both:false, screen:'places'};
+try { Object.assign(st, JSON.parse(localStorage.getItem(KEY) || '{}')); } catch(e) {}
+if (!DEVICES[st.dev]) st.dev = DEFAULT_DEV;
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch(e) {} };
+const $ = s => document.querySelector(s);
+
+const SYS = `<span class="sys"><svg width="18" height="12" viewBox="0 0 18 12" fill="#fff" aria-hidden="true"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+  <svg width="27" height="13" viewBox="0 0 27 13" aria-hidden="true"><rect x=".5" y=".5" width="23" height="12" rx="3.5" fill="none" stroke="#fff" opacity=".45"/><rect x="2" y="2" width="18" height="9" rx="2" fill="#fff"/><rect x="25" y="4.5" width="1.6" height="4" rx=".8" fill="#fff" opacity=".45"/></svg></span>`;
+
+function screenHTML(d, land){
+  const src = `../index.html#${st.screen}`, title = `${d.name} ${land ? '가로' : '세로'}`;
+  if (!d.top){
+    const w = land ? d.h : d.w, h = land ? d.w : d.h;
+    return `<div class="frame plain"><div class="screen"><iframe title="${title}" width="${w}" height="${h}" src="${src}"></iframe></div></div>`;
+  }
+  if (!land){
+    const ih = d.h - d.top - d.bottom;
+    return `<div class="frame"><div class="screen">
+      <div class="status" style="height:${d.top}px"><span>9:41</span><span class="island"></span>${SYS}</div>
+      <iframe title="${title}" width="${d.w}" height="${ih}" src="${src}"></iframe>
+      <div class="home" style="height:${d.bottom}px"><i></i></div></div></div>`;
+  }
+  const iw = d.h - d.side * 2, ih = d.w - d.landBottom;
+  return `<div class="frame"><div class="screen land">
+    <div class="side" style="width:${d.side}px"><span class="island"></span></div>
+    <div class="col"><iframe title="${title}" width="${iw}" height="${ih}" src="${src}"></iframe><div class="home" style="height:${d.landBottom}px"><i></i></div></div>
+    <div class="side" style="width:${d.side}px"></div></div></div>`;
+}
+function toolbar(){
+  $('#devices').innerHTML = '<span>기기</span>' + Object.entries(DEVICES).map(([k, d]) => `<button type="button" data-dev="${k}" aria-pressed="${st.dev === k}">${d.name}</button>`).join('');
+  $('#screens').innerHTML = '<span>화면</span>' + SCREENS.map(([k, t]) => `<button type="button" data-screen="${k}" aria-pressed="${st.screen === k}">${t}</button>`).join('');
+  $('#both').setAttribute('aria-pressed', st.both);
+}
+function render(){
+  toolbar();
+  const d = DEVICES[st.dev], list = st.both ? [st.land, !st.land] : [st.land];
+  $('#stage').innerHTML = list.map(land => {
+    const w = land ? d.h : d.w, h = land ? d.w : d.h;
+    return `<div class="dev"><div class="box">${screenHTML(d, land)}</div><div class="label">${d.name} · ${land ? '가로' : '세로'} · ${w}×${h}</div></div>`;
+  }).join('');
+  fit();
+}
+// Shrink frames to fit the panel; never enlarge past real size.
+function fit(){
+  const stage = $('#stage'), boxes = [...stage.querySelectorAll('.box')];
+  const availH = stage.clientHeight - 64, availW = stage.clientWidth - 32 - 28 * (boxes.length - 1);
+  const sizes = boxes.map(b => { const f = b.firstElementChild, s = parseFloat(b.dataset.s) || 1, r = f.getBoundingClientRect(); return [r.width / s, r.height / s]; });
+  const s = Math.min(1, availH / Math.max(...sizes.map(([, h]) => h)), availW / sizes.reduce((a, [w]) => a + w, 0));
+  boxes.forEach((b, i) => { b.dataset.s = s; b.firstElementChild.style.transform = `scale(${s})`; b.style.width = sizes[i][0] * s + 'px'; b.style.height = sizes[i][1] * s + 'px'; });
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.dev){ st.dev = b.dataset.dev; render(); }
+  else if (b.dataset.screen){
+    st.screen = b.dataset.screen; toolbar();
+    document.querySelectorAll('iframe').forEach(f => { const w = f.contentWindow; if (w && w.location.pathname.endsWith('index.html')) w.location.hash = st.screen; else f.src = '../index.html#' + st.screen; });
+  }
+  else if (b.id === 'rotate'){ st.land = !st.land; render(); }
+  else if (b.id === 'both'){ st.both = !st.both; render(); }
+  else if (b.id === 'reload'){ document.querySelectorAll('iframe').forEach(f => f.contentWindow.location.reload()); }
+  save();
+});
+let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(fit, 80); });
+render();
+</script>
+</body>
+</html>

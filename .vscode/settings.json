@@ -1,0 +1,13 @@
+{
+  // Mobile Preview (lirobi.phone-preview): shows the app in a phone frame next to the code.
+  // The "앱 미리보기 서버" task serves the folder on this port.
+  // iPhone 17 is a free device with the same 402×874 screen as iPhone 16 Pro.
+  "mobile-preview.url": "http://localhost:5173/",
+  "mobile-preview.device": "iPhone 17",
+
+  // Live Preview: older phone-frame page (.vscode/phone.html).
+  "livePreview.defaultPreviewPath": "/.vscode/phone.html",
+  "livePreview.openPreviewTarget": "Embedded Preview",
+  "livePreview.autoRefreshPreview": "On All Changes in Editor",
+  "livePreview.portNumber": 3000
+}
