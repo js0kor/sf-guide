@@ -66,7 +66,7 @@ button{cursor:pointer}
 .brand{display:flex;align-items:center;gap:10px;min-width:0;flex:1}
 .brand-mark{flex:none;width:36px;height:36px;border-radius:9px;display:block;object-fit:cover}
 .brand-text{min-width:0;display:flex;flex-direction:column}
-.brand-text strong{font-size:1.02rem;font-weight:700;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand-text h1{margin:0;font-size:1.02rem;font-weight:700;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .brand-text .short{display:none}
 .brand-sub{font-size:.8125rem;color:var(--top-ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .toptabs{display:none;gap:4px;padding:4px;border-radius:12px;background:var(--top-chip)}
@@ -392,11 +392,34 @@ button{cursor:pointer}
 .src{font-size:.8125rem;color:var(--ink-3);line-height:1.7}
 .src a{color:var(--bay)}
 
+/* ---------- Press feedback ---------- */
+button,a{-webkit-tap-highlight-color:transparent}
+:is(.btn,.icon-btn,.flag-btn,.tool-btn,.toggle-btn,.cat-chips button,.seg button,.toggles button,.tip-row button,.jump button,.base-chip,.tabbar button,.toptabs button,.pin-num,.mm-btn,.toast-undo,.pick-list button){transition:transform .12s ease,filter .12s ease}
+:is(.btn,.icon-btn,.flag-btn,.tool-btn,.toggle-btn,.cat-chips button,.seg button,.toggles button,.tip-row button,.jump button,.base-chip,.tabbar button,.toptabs button,.pin-num,.mm-btn,.toast-undo,.pick-list button):active{transform:scale(.97);filter:brightness(.93)}
+.view:focus{outline:none}
+
 /* ---------- Toast ---------- */
-.toast{position:fixed;z-index:80;left:50%;bottom:calc(var(--tabbar-h) + 14px + env(safe-area-inset-bottom,0px));transform:translate(-50%,12px);opacity:0;pointer-events:none;background:var(--ink);color:var(--surface);padding:11px 16px;border-radius:12px;font-size:.88rem;font-weight:600;box-shadow:var(--shadow-lg);max-width:min(92vw,460px);text-align:center;transition:opacity .2s,transform .2s}
+.toast{position:fixed;z-index:80;left:50%;bottom:calc(var(--tabbar-h) + 14px + env(safe-area-inset-bottom,0px));transform:translate(-50%,12px);opacity:0;pointer-events:none;background:var(--ink);color:var(--surface);padding:11px 16px;border-radius:12px;font-size:.88rem;font-weight:600;box-shadow:var(--shadow-lg);width:max-content;max-width:min(92vw,460px);text-align:center;transition:opacity .2s,transform .2s}
 .toast.show{opacity:1;transform:translate(-50%,0)}
+.toast.has-undo{display:flex;align-items:center;gap:12px;text-align:left;padding:6px 6px 6px 16px}
+.toast.show.has-undo{pointer-events:auto}
+.toast-undo{flex:none;min-height:40px;padding:0 14px;border-radius:9px;border:0;background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:.88rem}
 
 /* ---------- Responsive ---------- */
+/* Phone held sideways: one-line header, lower tab bar, more room for content. */
+@media (max-width:1023.98px) and (max-height:500px) and (orientation:landscape){
+  :root{--tabbar-h:48px}
+  .basebar{display:none}
+  .top-row{padding-block:6px}
+  .brand-mark{width:28px;height:28px;border-radius:7px}
+  .tabbar button{flex-direction:row;gap:6px}
+  .tabbar .badge{top:4px}
+}
+/* Large system text: stack the shortcut icon above its label so labels never collide. */
+@media (max-width:21em){
+  .basebar .base-chip{flex-direction:column;gap:2px;padding:5px 2px;font-size:.8125rem;line-height:1.2}
+  .basebar .base-chip .bi{width:22px;height:22px}
+}
 @media (max-width:1023.98px){
   body{padding-bottom:var(--tabbar-h)}
   .panel[id]{scroll-margin-top:16px}
@@ -431,7 +454,7 @@ button{cursor:pointer}
   .brand-sub .cd{display:none}
 }
 @media (max-width:380px){
-  .brand-text strong{font-size:.95rem}
+  .brand-text h1{font-size:.95rem}
   .sheet-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 .panel.wide{grid-column:1/-1}
@@ -446,9 +469,10 @@ button{cursor:pointer}
 .tz-strip small{font-size:.8125rem;color:var(--ink-3)}
 .tz-strip p{flex-basis:100%;font-size:.8125rem;color:var(--ink-3)}
 .panel .sub-h{font-size:.8125rem;font-weight:700;color:var(--ink-3);margin:16px 0 6px}
-.field select{height:44px;border:1px solid var(--line);border-radius:10px;background:var(--surface-2);padding:0 10px;font-size:.95rem;min-width:0;width:100%;color:var(--ink)}
+.field select{height:44px;border:1px solid var(--line);border-radius:10px;background:var(--surface-2);padding:0 10px;font-size:1rem;min-width:0;width:100%;color:var(--ink)}
 .field input[type="text"],.field input[type="date"]{font-family:inherit}
-.row-inline{display:flex;gap:8px;align-items:stretch}
+.row-inline{display:flex;gap:8px;align-items:flex-end}
+.row-inline > .btn{min-height:44px}
 .row-inline > .grow{flex:1;min-width:0}
 .pick-list{display:flex;flex-direction:column;gap:6px;margin-top:8px}
 .pick-list button{text-align:left;border:1px solid var(--line);background:var(--surface-2);border-radius:10px;padding:9px 12px;font-size:.85rem;color:var(--ink)}
@@ -531,7 +555,7 @@ button{cursor:pointer}
     <div class="brand">
       <img class="brand-mark" src="icons/icon-192.png" alt="" aria-hidden="true">
       <div class="brand-text">
-        <div class="brand-title"><strong>샌프란꼬</strong><button type="button" class="trip-chip" id="tripChip" data-go="plan" hidden></button></div>
+        <div class="brand-title"><h1>샌프란꼬</h1><button type="button" class="trip-chip" id="tripChip" data-go="plan" hidden></button></div>
         <span class="brand-sub" id="clockLine">현지 시각 확인 중</span>
       </div>
     </div>
@@ -554,7 +578,7 @@ button{cursor:pointer}
 
 <main id="main">
   <!-- ===== 장소 + 지도 ===== -->
-  <section class="view" id="view-places" data-pane="list" aria-label="장소와 지도">
+  <section class="view" id="view-places" data-pane="list" aria-label="장소와 지도" tabindex="-1">
     <div class="wrap places-layout">
       <div class="list-pane" id="listPane">
         <div class="filters">
@@ -634,7 +658,7 @@ button{cursor:pointer}
   </section>
 
   <!-- ===== 일정 + 내 동선 ===== -->
-  <section class="view" id="view-plan" hidden aria-label="일정과 동선">
+  <section class="view" id="view-plan" hidden aria-label="일정과 동선" tabindex="-1">
     <div class="wrap plan-wrap">
       <div class="view-head">
         <p class="eyebrow">Itinerary</p>
@@ -648,7 +672,7 @@ button{cursor:pointer}
   </section>
 
   <!-- ===== 러닝·자전거 ===== -->
-  <section class="view" id="view-courses" hidden aria-label="러닝과 자전거">
+  <section class="view" id="view-courses" hidden aria-label="러닝과 자전거" tabindex="-1">
     <div class="wrap">
       <div class="view-head">
         <p class="eyebrow">Run · Ride · Commute</p>
@@ -696,7 +720,7 @@ button{cursor:pointer}
   </section>
 
   <!-- ===== 정보·도구 ===== -->
-  <section class="view" id="view-info" hidden aria-label="정보와 도구">
+  <section class="view" id="view-info" hidden aria-label="정보와 도구" tabindex="-1">
     <div class="wrap">
       <div class="view-head">
         <p class="eyebrow">Tools · Safety</p>
@@ -750,7 +774,7 @@ button{cursor:pointer}
           <p class="sub-h">일행</p>
           <div class="toggles" id="expPeople"></div>
           <div class="row-inline" style="margin-top:8px">
-            <div class="field grow"><input id="expNewName" type="text" maxlength="10" placeholder="이름 추가 (예: 지영)" aria-label="일행 이름"></div>
+            <div class="field grow"><label for="expNewName">일행 이름</label><input id="expNewName" type="text" maxlength="10" placeholder="예: 지영"></div>
             <button type="button" class="btn" data-act="exp-add-person">추가</button>
           </div>
           <p class="sub-h">지출 기록</p>
@@ -838,7 +862,7 @@ button{cursor:pointer}
           <p class="sub-h">숙소 위치</p>
           <p style="font-size:.88rem" id="hotelNow"></p>
           <div class="row-inline" style="margin-top:8px">
-            <div class="field grow"><input id="hotelQ" type="text" placeholder="호텔 이름이나 주소" aria-label="숙소 검색" enterkeyhint="search"></div>
+            <div class="field grow"><label for="hotelQ">숙소 검색</label><input id="hotelQ" type="text" placeholder="호텔 이름이나 주소" enterkeyhint="search"></div>
             <button type="button" class="btn" data-act="hotel-search">검색</button>
           </div>
           <div class="pick-list" id="hotelResults"></div>
@@ -1336,7 +1360,7 @@ function saveState(){
 }
 const HOTEL_DEFAULT = (({ko, en, hood, lat, lng, q, resTip, must, desc}) => ({ko, en, hood, lat, lng, q, resTip, must, desc}))(P[BASE.hotel]);
 
-const ui = {hotelHits:[], cat:'ALL', res:'ALL', area:'ALL', q:'', sort:'rec', unvisited:false, sel:34, open:new Set(), plan:'d0', course:'NONE', caution:true, routeLine:true, basis:'sub', tip:18, view:'places', sheetMin:false};
+const ui = {hotelHits:[], cat:'ALL', res:'ALL', area:'ALL', q:'', sort:'rec', unvisited:false, sel:34, open:new Set(), plan:'d0', course:'NONE', caution:true, routeLine:true, basis:'sub', tip:18, view:'places', sheetMin:window.matchMedia('(max-width: 1023.98px) and (max-height: 500px) and (orientation: landscape)').matches};
 
 /* =================== HELPERS =================== */
 const $ = (s, r=document) => r.querySelector(s);
@@ -1403,9 +1427,18 @@ const MODE_LEG = {walking:'walk', transit:'transit', bicycling:'bike', driving:'
 
 let toastTimer = null;
 function toast(msg, extra){
-  const t = $('#toast'); t.innerHTML = esc(msg) + (extra || ''); t.classList.add('show');
-  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), extra ? 3800 : 2600);
+  const t = $('#toast'); t.classList.remove('has-undo'); t.innerHTML = esc(msg) + (extra || ''); t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), extra || msg.length > 30 ? 5000 : 3500);
 }
+// For removals: the toast carries a [되돌리기] button for a few seconds.
+let undoFn = null;
+function toastUndo(msg, undo){
+  const t = $('#toast'); undoFn = undo;
+  t.innerHTML = `<span>${esc(msg)}</span><button type="button" class="toast-undo" data-act="undo">되돌리기</button>`;
+  t.classList.add('show', 'has-undo');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.classList.remove('show'); undoFn = null; }, 5000);
+}
+function routeUndo(){ const before = [...state.route]; return () => { state.route = before; afterRouteChange(); renderList(); }; }
 async function copyText(text, label){
   try { await navigator.clipboard.writeText(text); toast(`${label || '내용'} 복사됨`); }
   catch(e){
@@ -1533,6 +1566,9 @@ function refreshCard(id){
 
 /* =================== MAP =================== */
 let map = null, markers = {}, layers = {};
+// Phone held sideways: keep the place sheet folded so the map stays visible.
+const shortScreen = window.matchMedia('(max-width: 1023.98px) and (max-height: 500px) and (orientation: landscape)');
+shortScreen.addEventListener('change', e => { ui.sheetMin = e.matches; renderSheet(); measure(); });
 const ESRI = 'https://server.arcgisonline.com/ArcGIS/rest/services/';
 const ESRI_ATTR = 'Tiles © <a href="https://www.esri.com/" target="_blank" rel="noopener">Esri</a>, HERE, Garmin, © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors';
 // gray: quiet backdrop so pins stand out; street: readable street names; osm: fallback if Esri ever blocks keyless use.
@@ -1695,7 +1731,7 @@ function renderSheet(){
 }
 function selectPlace(id, opts = {}){
   const prev = ui.sel; ui.sel = id;
-  if (id !== prev) ui.sheetMin = false;
+  if (id !== prev) ui.sheetMin = shortScreen.matches;
   [prev, id].forEach(x => { const el = document.getElementById('card-' + x); if (el) el.classList.toggle('is-sel', x === id); });
   renderSheet();
   drawPins();
@@ -1889,7 +1925,7 @@ function afterRouteChange(){
 }
 function toggleRoute(id){
   const i = state.route.indexOf(id);
-  if (i > -1){ state.route.splice(i, 1); toast(`${P[id].ko}: 동선에서 뺐습니다`); }
+  if (i > -1){ const undo = routeUndo(); state.route.splice(i, 1); toastUndo(`${P[id].ko}: 동선에서 뺐습니다`, undo); }
   else {
     if (state.route.length >= 12){ toast('동선은 12곳까지 담을 수 있습니다'); return; }
     state.route.push(id); toast(`${P[id].ko}: 동선 ${state.route.length}번째로 추가`, state.route.length > 1 ? stopsMini(state.route) : '');
@@ -1980,6 +2016,7 @@ function renderChecklist(){
 const VIEWS = ['places', 'map', 'plan', 'courses', 'info'];
 function go(v){ if (location.hash.slice(1) === v) applyRoute(); else location.hash = v; }
 function applyRoute(){ let h = location.hash.slice(1); if (!VIEWS.includes(h)) h = 'places'; setView(h); }
+let routed = false;
 function setView(v){
   if (isDesktop() && v === 'map') v = 'places';
   ui.view = v;
@@ -1996,6 +2033,8 @@ function setView(v){
     ensureMap();
   }
   if (sec !== 'places') window.scrollTo(0, 0);
+  if (routed) (v === 'map' ? $('#leafletMap') : $('#view-' + sec)).focus({preventScroll:true});
+  routed = true;
 }
 function measure(){
   const top = $('#topbar'), tab = $('#tabbar');
@@ -2004,7 +2043,7 @@ function measure(){
   const cs = getComputedStyle(document.documentElement);
   const padT = parseFloat(cs.paddingTop) || 0;
   const tabH = isDesktop() ? 0 : tab.offsetHeight;
-  const avail = Math.max(320, window.innerHeight - padT - top.offsetHeight - tabH);
+  const avail = Math.max(200, window.innerHeight - padT - top.offsetHeight - tabH);
   document.documentElement.style.setProperty('--map-h', avail + 'px');
   document.documentElement.style.setProperty('--map-avail', avail + 'px');
   if (map) requestAnimationFrame(() => map.invalidateSize());
@@ -2260,12 +2299,12 @@ document.addEventListener('click', e => {
     case 'mode': state.mode = a.dataset.mode; saveState(); renderPlan(); break;
     case 'route-start': { const i = state.route.indexOf(id); if (i > -1) state.route.splice(i, 1); state.route.unshift(id); state.route = state.route.slice(0, 12); afterRouteChange(); renderList(); break; }
     case 'route-end': { if (state.route[state.route.length - 1] !== id){ if (state.route.length >= 12) state.route.pop(); state.route.push(id); } afterRouteChange(); renderList(); break; }
-    case 'route-clear': state.route = []; afterRouteChange(); renderList(); toast('동선을 비웠습니다'); break;
+    case 'route-clear': { const undo = routeUndo(); state.route = []; afterRouteChange(); renderList(); toastUndo('동선을 비웠습니다', undo); break; }
     case 'r-up': case 'r-down': {
       const i = +a.dataset.i, j = a.dataset.act === 'r-up' ? i - 1 : i + 1;
       if (j < 0 || j >= state.route.length) break;
       [state.route[i], state.route[j]] = [state.route[j], state.route[i]]; afterRouteChange(); break; }
-    case 'r-del': { const rid = state.route[+a.dataset.i]; state.route.splice(+a.dataset.i, 1); afterRouteChange(); refreshCard(rid); break; }
+    case 'r-del': { const undo = routeUndo(), rid = state.route[+a.dataset.i]; state.route.splice(+a.dataset.i, 1); afterRouteChange(); refreshCard(rid); toastUndo(`${P[rid].ko}: 동선에서 뺐습니다`, undo); break; }
     case 'tip': ui.tip = +a.dataset.tip; renderTips(); calc(); break;
     case 'chk-daily': CHECK[1].items.forEach(([k]) => delete state.check[k]); saveState(); renderChecklist(); break;
     case 'goto-settings': case 'goto-exp': {
@@ -2286,7 +2325,12 @@ document.addEventListener('click', e => {
       const pid = +a.dataset.pid, cur = expDraft.split || state.exp.people.map(p => p.id);
       expDraft.split = cur.includes(pid) ? cur.filter(x => x !== pid) : [...cur, pid]; renderExp(); break; }
     case 'exp-add': addExpense(); break;
-    case 'exp-del': state.exp.items = state.exp.items.filter(i => i.id !== +a.dataset.eid); saveState(); renderExp(); toast('지출을 지웠습니다'); break;
+    case 'exp-del': {
+      const before = [...state.exp.items];
+      state.exp.items = state.exp.items.filter(i => i.id !== +a.dataset.eid); saveState(); renderExp();
+      toastUndo('지출을 지웠습니다', () => { state.exp.items = before; saveState(); renderExp(); });
+      break; }
+    case 'undo': { const f = undoFn; undoFn = null; $('#toast').classList.remove('show'); if (f){ f(); toast('되돌렸습니다'); } break; }
     case 'exp-copy': copyText(expText(), '정산 결과'); break;
     case 'exp-clear': if (confirm('지출 기록을 모두 지울까요? 일행 이름은 남겨 둡니다.')){ state.exp.items = []; saveState(); renderExp(); } break;
   }
@@ -2348,6 +2392,8 @@ $('#courseSel').addEventListener('change', e => { ui.course = e.target.value; dr
 $('#cautionChk').addEventListener('change', e => { ui.caution = e.target.checked; drawCaution(); });
 $('#routeChk').addEventListener('change', e => { ui.routeLine = e.target.checked; drawRouteLine(); });
 window.addEventListener('hashchange', applyRoute);
+// iOS Safari only shows :active press states when a touch listener exists.
+document.addEventListener('touchstart', () => {}, {passive:true});
 let rzTimer = null, wasDesk = isDesktop();
 window.addEventListener('resize', () => { clearTimeout(rzTimer); rzTimer = setTimeout(() => { measure(); const d = isDesktop(); if (d !== wasDesk){ wasDesk = d; applyRoute(); } }, 120); });
 
