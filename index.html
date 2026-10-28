@@ -225,9 +225,11 @@ button{cursor:pointer}
 .pin .drop{position:absolute;left:0;top:0;width:100%;aspect-ratio:1;border-radius:50% 50% 50% 4px;transform:rotate(-45deg);background:linear-gradient(135deg,color-mix(in srgb,var(--c) 70%,#fff) 0%,var(--c) 55%,color-mix(in srgb,var(--c) 80%,#000) 100%);border:2px solid var(--pin-ring);box-shadow:0 4px 10px rgba(10,20,30,.35)}
 .pin b{position:absolute;left:0;top:0;width:100%;aspect-ratio:1;display:grid;place-items:center;color:#fff;font-family:var(--f-mono);font-weight:700;font-size:11.5px;text-shadow:0 1px 1px rgba(0,0,0,.25)}
 .pin::after{content:"";position:absolute;left:50%;bottom:-3px;width:12px;height:4px;margin-left:-6px;border-radius:50%;background:rgba(10,20,30,.35);filter:blur(1.5px)}
-.pin.pin-base .drop{border-radius:12px;transform:none;background:linear-gradient(160deg,color-mix(in srgb,var(--accent) 75%,#fff),var(--accent));border:3px solid var(--pin-ring);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent),0 6px 14px rgba(10,20,30,.4)}
-.pin.pin-base b{color:#fff;font-size:13px}
-.pin.pin-base::before{content:"";position:absolute;left:50%;top:100%;margin-left:-5px;margin-top:-6px;border:5px solid transparent;border-top:7px solid var(--accent)}
+.pin.pin-base .drop{border-radius:8px;transform:none;background:linear-gradient(160deg,color-mix(in srgb,var(--accent) 75%,#fff),var(--accent));border:2px solid var(--pin-ring);box-shadow:0 3px 8px rgba(10,20,30,.35)}
+.pin.pin-base b{color:#fff}
+.pin.pin-base b .ico{width:14px;height:14px;stroke-width:2.2}
+.pin.pin-base::before{content:"";position:absolute;left:50%;top:100%;margin-left:-4px;margin-top:-7px;border:4px solid transparent;border-top:5px solid var(--accent)}
+.pin.pin-base.is-sel,.pin-wrap:hover .pin.pin-base.is-sel{transform:scale(1.15)}
 .pin.is-visited .drop{filter:grayscale(.75);opacity:.7}
 .pin.is-visited b{opacity:.85}
 .pin.is-fav .drop::after{content:"★";position:absolute;right:-7px;top:-7px;transform:rotate(45deg);width:16px;height:16px;border-radius:50%;display:grid;place-items:center;font-size:10px;line-height:1;color:#fff;background:var(--star);border:2px solid var(--pin-ring)}
@@ -881,6 +883,8 @@ const MAPDATA = {"land":{"type":"MultiPolygon","coordinates":[[[[-122.3964,37.63
 const BASE = {
   hotel: 34, conf: 35, marq: 36
 };
+// Hotel and conference venues show an icon instead of their list number.
+const BASE_ICON = {34:'i-bed', 35:'i-badge', 36:'i-building'};
 
 const CATS = [
   {id:'ALL', label:'전체', v:'--ink-3'},
@@ -1119,7 +1123,7 @@ const PLACES = [
    q:'Whole Foods Market 1765 California St San Francisco CA'},
   {id:26, cat:'MART', sub:'대형 마트 (학회장 앞)', ko:'타겟 메트레온점', en:'Target San Francisco Metreon', hood:'SoMa · 789 Mission St', area:'downtown', price:'$~$$',
    lat:37.7845, lng:-122.4036, res:'NONE', resLabel:'예약 불필요',
-   resTip:'메리어트 마키스(#36) 맞은편 메트레온 건물에 있어 학회 쉬는 시간에 다녀오기 좋습니다.',
+   resTip:'메리어트 마키스 맞은편 메트레온 건물에 있어 학회 쉬는 시간에 다녀오기 좋습니다.',
    must:'생수·간식, 상비약(타이레놀·멜라토닌), 대용량 초콜릿',
    desc:'학회장에서 길만 건너면 되는 대형 타겟입니다. 숙소에서도 도보 약 10분입니다.',
    tip:'메트레온 건물에 간단히 먹을 식당가가 있어 짧은 점심에 쓸 만합니다.',
@@ -1189,7 +1193,7 @@ const COURSES = [
    mode:'walking', fromQ:'Ferry Building San Francisco CA', toQ:'Aquatic Park Pier San Francisco CA', viaQ:['Pier 39 San Francisco CA'],
    coords:[[37.7955,-122.3937],[37.8014,-122.3976],[37.8066,-122.4047],[37.8087,-122.4098],[37.8080,-122.4170],[37.8065,-122.4238]]},
   {id:'RUN_ORACLE', key:'run2', type:'러닝 2 · 학회장 출발', name:'모스콘 → 베이 브리지 → 오라클 파크', dist:'왕복 약 5.4km', level:'평지 · 학회 전후',
-   summary:'모스콘 사우스(#35)에서 Howard St를 따라 바다로 나가, 베이 브리지 아래와 큐피드 화살 조형물(Cupid\'s Span)을 지나 자이언츠 홈구장까지 달립니다.',
+   summary:'모스콘 사우스에서 Howard St를 따라 바다로 나가, 베이 브리지 아래와 큐피드 화살 조형물(Cupid\'s Span)을 지나 자이언츠 홈구장까지 달립니다.',
    tip:'학회장에서 바로 출발할 수 있는 가장 실용적인 코스입니다. 해 진 뒤에는 Embarcadero 해안길 위주로만 달리세요.',
    mode:'walking', from:35, toQ:'Oracle Park 24 Willie Mays Plaza San Francisco CA', viaQ:["Cupid's Span Rincon Park San Francisco CA"],
    coords:[[37.7840,-122.4013],[37.7898,-122.3925],[37.7912,-122.3897],[37.7870,-122.3878],[37.7820,-122.3878],[37.7786,-122.3893]]},
@@ -1339,6 +1343,8 @@ const $ = (s, r=document) => r.querySelector(s);
 const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const icon = (id, cls='') => `<svg class="ico ${cls}" aria-hidden="true"><use href="#${id}"/></svg>`;
+const pinLabel = p => BASE_ICON[p.id] ? icon(BASE_ICON[p.id], 'sm') : p.id;
+const idTag = (p, sep = ' ') => BASE_ICON[p.id] ? '' : `#${p.id}${sep}`;
 const isDesktop = () => window.matchMedia('(min-width:1024px)').matches;
 const isPhone = () => window.matchMedia('(pointer:coarse)').matches && Math.min(screen.width, screen.height) < 820;
 
@@ -1465,7 +1471,7 @@ function cardHTML(p){
   return `
   <article class="card${base ? ' is-base' : ''}${ui.sel === p.id ? ' is-sel' : ''}" id="card-${p.id}" data-id="${p.id}" style="--c:var(${catVar(p)})">
     <div class="card-head">
-      <button type="button" class="pin-num" data-act="map" data-id="${p.id}" aria-label="${esc(p.ko)} 지도에서 보기">${p.id}</button>
+      <button type="button" class="pin-num" data-act="map" data-id="${p.id}" aria-label="${esc(p.ko)} 지도에서 보기">${pinLabel(p)}</button>
       <div class="card-title">
         <h3>${esc(p.ko)}</h3>
         <p class="sub">${esc(p.en)} · ${esc(p.sub)}</p>
@@ -1590,8 +1596,8 @@ function pinIcon(p){
   const base = p.cat === 'BASECAMP';
   const cls = ['pin']; if (base) cls.push('pin-base'); if (p.id === ui.sel) cls.push('is-sel');
   if (state.visited.includes(p.id) && p.id !== ui.sel) cls.push('is-visited'); if (state.fav.includes(p.id)) cls.push('is-fav');
-  const s = base ? 34 : 28, h = Math.round(s * (base ? 1.2 : 1.3));
-  return L.divIcon({className:'pin-wrap', iconSize:[s,h], iconAnchor:[s/2,h], html:`<span class="${cls.join(' ')}" style="--c:var(${catVar(p)})"><span class="drop"></span><b>${p.id}</b></span>`});
+  const s = base ? 26 : 28, h = Math.round(s * (base ? 1.25 : 1.3));
+  return L.divIcon({className:'pin-wrap', iconSize:[s,h], iconAnchor:[s/2,h], html:`<span class="${cls.join(' ')}" style="--c:var(${catVar(p)})"><span class="drop"></span><b>${pinLabel(p)}</b></span>`});
 }
 // Below this zoom, pins closer than CLUSTER_PX on screen merge into one "N곳" bubble.
 const CLUSTER_MAX_Z = 15, CLUSTER_PX = 42;
@@ -1613,7 +1619,7 @@ function drawPins(){
   clusterPins(list).forEach(g => {
     if (g.items.length === 1){
       const p = g.items[0];
-      const m = L.marker([p.lat, p.lng], {icon:pinIcon(p), title:`#${p.id} ${p.ko}`, alt:p.ko, riseOnHover:true,
+      const m = L.marker([p.lat, p.lng], {icon:pinIcon(p), title:`${idTag(p)}${p.ko}`, alt:p.ko, riseOnHover:true,
         zIndexOffset: p.id === ui.sel ? 2000 : p.cat === 'BASECAMP' ? 800 : 0}).addTo(layers.pins);
       m.on('click', () => selectPlace(p.id, {from:'map'}));
       markers[p.id] = m;
@@ -1674,7 +1680,7 @@ function renderSheet(){
   const inRoute = state.route.includes(p.id), fav = state.fav.includes(p.id);
   el.innerHTML = `
     <div class="sheet-head">
-      <span class="pin-num" style="${p.cat === 'BASECAMP' ? 'border-radius:9px' : ''}">${p.id}</span>
+      <span class="pin-num" style="${p.cat === 'BASECAMP' ? 'border-radius:9px' : ''}">${pinLabel(p)}</span>
       <div class="t"><strong>${esc(p.ko)}</strong><small>${esc(p.en)} · ${esc(p.sub)}</small></div>
       <button type="button" class="flag-btn fav" data-act="fav" data-id="${p.id}" aria-pressed="${fav}" aria-label="즐겨찾기">${icon('i-star')}</button>
       <button type="button" class="flag-btn sheet-min" data-act="sheet-min" aria-expanded="${!ui.sheetMin}" aria-label="${ui.sheetMin ? '장소 정보 펼치기' : '장소 정보 접기'}">${icon('i-down')}</button>
@@ -1796,7 +1802,7 @@ function stopRow(p, i){
     <span class="pin-num" style="${p.cat === 'BASECAMP' ? 'border-radius:9px' : ''}">${i + 1}</span>
     <div class="stop-body">
       <button type="button" class="stop-name" data-act="map" data-id="${p.id}">${esc(p.ko)}</button>
-      <p class="stop-sub">#${p.id} · ${p.cat === 'BASECAMP' ? esc(p.baseTag) : esc(RES_SHORT[p.res])} · ${esc(p.hood)}</p>
+      <p class="stop-sub">${idTag(p, ' · ')}${p.cat === 'BASECAMP' ? esc(p.baseTag) : esc(RES_SHORT[p.res])} · ${esc(p.hood)}</p>
     </div>
     <label class="check"><input type="checkbox" data-act="visit-chk" data-id="${p.id}" ${done ? 'checked' : ''}>다녀옴</label>
   </li>`;
@@ -1861,7 +1867,7 @@ function routeHTML(){
     const p = P[id];
     rows += `<li class="route-item" style="--c:var(${catVar(p)})">
       <span class="pin-num" style="${p.cat === 'BASECAMP' ? 'border-radius:9px' : ''}">${i + 1}</span>
-      <div class="t"><strong>${esc(p.ko)}</strong><small>#${p.id} · ${esc(p.hood)}</small></div>
+      <div class="t"><strong>${esc(p.ko)}</strong><small>${idTag(p, ' · ')}${esc(p.hood)}</small></div>
       <div class="route-ctrl">
         <button type="button" class="icon-btn sm" data-act="r-up" data-i="${i}" aria-label="위로" ${i === 0 ? 'disabled' : ''}>${icon('i-up','sm')}</button>
         <button type="button" class="icon-btn sm" data-act="r-down" data-i="${i}" aria-label="아래로" ${i === r.length - 1 ? 'disabled' : ''}>${icon('i-down','sm')}</button>
