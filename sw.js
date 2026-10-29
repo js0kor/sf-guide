@@ -1,5 +1,5 @@
 // Bump this when you deploy changes so installed copies pick up the new version.
-const VERSION = 'sf-guide-v8';
+const VERSION = 'sf-guide-v9';
 // Map tiles live in their own cache so they survive version bumps; capped to keep storage small.
 const TILES = 'sf-tiles-v1';
 const TILE_MAX = 800;

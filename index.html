@@ -1509,7 +1509,7 @@ function saveState(){
 }
 const HOTEL_DEFAULT = (({ko, en, hood, lat, lng, q, resTip, must, desc}) => ({ko, en, hood, lat, lng, q, resTip, must, desc}))(P[BASE.hotel]);
 
-const ui = {hotelHits:[], cat:'ALL', res:'ALL', area:'ALL', q:'', sort:'rec', unvisited:false, sel:34, open:new Set(), plan:'d0', course:'NONE', caution:true, routeLine:true, tide:false, mapView:null, basis:'sub', tip:18, view:'places', sheetMin:window.matchMedia('(max-width: 1023.98px) and (max-height: 500px) and (orientation: landscape)').matches};
+const ui = {hotelHits:[], cat:'ALL', res:'ALL', area:'ALL', q:'', sort:'rec', unvisited:false, sel:34, open:new Set(), plan:'d0', course:'NONE', caution:true, routeLine:true, tide:false, mapView:null, listPos:null, basis:'sub', tip:18, view:'places', sheetMin:window.matchMedia('(max-width: 1023.98px) and (max-height: 500px) and (orientation: landscape)').matches};
 
 /* =================== HELPERS =================== */
 const $ = (s, r=document) => r.querySelector(s);
@@ -2233,8 +2233,21 @@ const VIEWS = ['places', 'map', 'plan', 'courses', 'info'];
 function go(v){ if (location.hash.slice(1) === v) applyRoute(); else location.hash = v; }
 function applyRoute(){ let h = location.hash.slice(1); if (!VIEWS.includes(h)) h = 'places'; setView(h); }
 let routed = false;
+// List scroll spot, anchored to the card at the top of the screen so re-rendered cards or a small layout shift still line up.
+function listPos(){
+  const top = $('#topbar').getBoundingClientRect().bottom, c = $$('#placeList .card').find(el => el.getBoundingClientRect().bottom > top);
+  return {y:Math.round(window.scrollY), anchor:c ? [+c.dataset.id, Math.round(c.getBoundingClientRect().top)] : null};
+}
+function scrollToPos(pos){
+  const el = pos.anchor && document.getElementById('card-' + pos.anchor[0]);
+  window.scrollTo(0, el ? el.getBoundingClientRect().top + window.scrollY - pos.anchor[1] : pos.y);
+  lastY = window.scrollY;
+}
 function setView(v){
   if (isDesktop() && v === 'map') v = 'places';
+  const prev = ui.view;
+  // Leaving the list remembers the spot, so coming back from the map or another tab lands on the same card.
+  if (routed && prev === 'places' && v !== 'places') ui.listPos = listPos();
   ui.view = v;
   $('#topbar').classList.remove('is-hidden');
   const sec = v === 'map' ? 'places' : v;
@@ -2249,6 +2262,7 @@ function setView(v){
     ensureMap();
   }
   if (sec !== 'places') window.scrollTo(0, 0);
+  if (v === 'places' && prev !== 'places' && ui.listPos) scrollToPos(ui.listPos);
   if (routed) (v === 'map' ? $('#leafletMap') : $('#view-' + sec)).focus({preventScroll:true});
   routed = true;
 }
@@ -2272,12 +2286,8 @@ const RESUME_KEY = 'sfguide.resume', RESUME_MAX = 6 * 3600e3;
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 function saveResume(){
   const s = {at:Date.now(), view:ui.view, y:Math.round(window.scrollY), cat:ui.cat, res:ui.res, area:ui.area, q:ui.q, sort:ui.sort, unvisited:ui.unvisited,
-    filters:!$('#filterRow').hidden, sel:ui.sel, open:[...ui.open], plan:ui.plan, course:ui.course, caution:ui.caution, routeLine:ui.routeLine, tide:ui.tide};
-  if (ui.view === 'places'){
-    // Anchor to the card at the top of the screen, so a small layout shift (fonts, offline bar) still lands on it.
-    const top = $('#topbar').getBoundingClientRect().bottom, c = $$('#placeList .card').find(el => el.getBoundingClientRect().bottom > top);
-    if (c) s.anchor = [+c.dataset.id, Math.round(c.getBoundingClientRect().top)];
-  }
+    filters:!$('#filterRow').hidden, sel:ui.sel, open:[...ui.open], plan:ui.plan, course:ui.course, caution:ui.caution, routeLine:ui.routeLine, tide:ui.tide,
+    list:ui.view === 'places' ? listPos() : ui.listPos};
   if (map){ const c = map.getCenter(); s.map = [+c.lat.toFixed(5), +c.lng.toFixed(5), map.getZoom()]; }
   try { localStorage.setItem(RESUME_KEY, JSON.stringify(s)); } catch(e) {}
 }
@@ -2297,6 +2307,7 @@ function loadResume(){
   ui.course = one(s.course, ['NONE', ...COURSES.map(c => c.id)], 'NONE');
   ['caution', 'routeLine', 'tide'].forEach(k => { if (typeof s[k] === 'boolean') ui[k] = s[k]; });
   if (Array.isArray(s.map) && s.map.length === 3 && s.map.every(Number.isFinite)) ui.mapView = s.map;
+  if (s.list && Number.isFinite(s.list.y)) ui.listPos = {y:s.list.y, anchor:Array.isArray(s.list.anchor) ? s.list.anchor : null};
   $('#q').value = ui.q; $('#qClear').hidden = !ui.q;
   $('#sortSel').value = ui.sort; $('#resSel').value = ui.res; $('#areaSel').value = ui.area;
   $('#unvisitedBtn').setAttribute('aria-pressed', ui.unvisited);
@@ -2307,9 +2318,8 @@ function loadResume(){
   return s;
 }
 function restoreScroll(s){
-  const el = ui.view === 'places' && s.anchor && document.getElementById('card-' + s.anchor[0]);
-  window.scrollTo(0, el ? el.getBoundingClientRect().top + window.scrollY - s.anchor[1] : s.view === ui.view ? s.y : 0);
-  lastY = window.scrollY;
+  if (ui.view === 'places' && ui.listPos) scrollToPos(ui.listPos);
+  else if (s.view === ui.view) scrollToPos({y:s.y});
 }
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveResume(); });
 window.addEventListener('pagehide', saveResume);
