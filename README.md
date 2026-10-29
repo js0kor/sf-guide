@@ -6,6 +6,8 @@ A San Francisco travel guide that installs to your phone's home screen like an a
 
 ## Features
 - Interactive map with places, categories, and distances from the hotel and conference venue
+- High-tide map toggle: NOAA flood extent for the next high tide, plus tide times
+- Reopens where you left off after a trip to Google Maps
 - Suggested 3-day itinerary and a custom route planner
 - Running and cycling routes, plus bike and scooter rental info
 - Tip calculator with a live USD→KRW exchange rate, emergency contacts, and a packing checklist

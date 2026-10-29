@@ -275,7 +275,20 @@ button{cursor:pointer}
 .legend i{width:10px;height:10px;border-radius:50% 50% 50% 2px;transform:rotate(-45deg);background:var(--c);flex:none}
 .legend i.sq{border-radius:3px;transform:none;background:var(--accent)}
 .legend .zone i{border-radius:2px;transform:none;background:var(--bad-soft);outline:1.5px dashed var(--bad)}
-.course-banner{position:absolute;z-index:500;left:calc(10px + env(safe-area-inset-left,0px));right:calc(60px + env(safe-area-inset-right,0px));top:58px;background:var(--glass);-webkit-backdrop-filter:blur(14px) saturate(1.4);backdrop-filter:blur(14px) saturate(1.4);border:1px solid var(--glass-line);border-left:4px solid var(--k,var(--accent));border-radius:14px;box-shadow:0 6px 20px rgba(10,20,30,.16);padding:5px 6px 5px 12px;display:flex;align-items:center;gap:6px}
+.tl-row{display:flex;gap:6px}
+.tool-btn[aria-pressed="true"]{border-color:var(--bay);color:var(--bay);background:var(--bay-soft)}
+/* NOAA paints water navy; shift it toward the app's bay blue so it reads as a tint, not a new map. */
+.leaflet-tide-pane{filter:hue-rotate(-35deg) saturate(.75) brightness(1.55)}
+.legend .tide i{border-radius:2px;transform:none;background:var(--tide,#6CCFE6)}
+.legend .tide.low i{--tide:#E3DC6A}
+.map-banners{position:absolute;z-index:500;left:calc(10px + env(safe-area-inset-left,0px));right:calc(60px + env(safe-area-inset-right,0px));top:58px;display:flex;flex-direction:column;gap:6px;pointer-events:none}
+.map-banners > *{pointer-events:auto}
+.tide-banner{background:var(--glass);-webkit-backdrop-filter:blur(14px) saturate(1.4);backdrop-filter:blur(14px) saturate(1.4);border:1px solid var(--glass-line);border-left:4px solid var(--bay);border-radius:14px;box-shadow:0 6px 20px rgba(10,20,30,.16);padding:6px 6px 6px 12px;display:flex;align-items:center;gap:6px}
+.tide-banner .t{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.4}
+.tide-banner strong{font-size:.88rem}
+.tide-banner small{font-size:.8125rem;color:var(--ink-2)}
+.tide-banner small + small{color:var(--bay)}
+.course-banner{background:var(--glass);-webkit-backdrop-filter:blur(14px) saturate(1.4);backdrop-filter:blur(14px) saturate(1.4);border:1px solid var(--glass-line);border-left:4px solid var(--k,var(--accent));border-radius:14px;box-shadow:0 6px 20px rgba(10,20,30,.16);padding:5px 6px 5px 12px;display:flex;align-items:center;gap:6px}
 .course-banner .t{flex:1;min-width:0;display:flex;align-items:baseline;gap:8px;white-space:nowrap;overflow:hidden}
 .course-banner strong{flex:0 1 auto;min-width:0;font-size:.88rem;overflow:hidden;text-overflow:ellipsis}
 .course-banner small{flex:1 1 0;min-width:0;font-size:.8125rem;color:var(--ink-2);overflow:hidden;text-overflow:ellipsis}
@@ -547,6 +560,7 @@ button,a{-webkit-tap-highlight-color:transparent}
     <symbol id="i-bag" viewBox="0 0 24 24"><path d="M5 8h14l-1 12.5H6zM9 8V6.5a3 3 0 0 1 6 0V8"/></symbol>
     <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></symbol>
     <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11 12 4l8 7v9H4z"/><path d="M10 20v-5h4v5"/></symbol>
+    <symbol id="i-wave" viewBox="0 0 24 24"><path d="M2 8.5c2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2 2.5 2 5 2M2 13c2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2 2.5 2 5 2M2 17.5c2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2 2.5 2 5 2"/></symbol>
   </defs>
 </svg>
 
@@ -624,7 +638,10 @@ button,a{-webkit-tap-highlight-color:transparent}
         <div class="map-shell">
           <div id="leafletMap" role="region" aria-label="샌프란시스코 지도"></div>
           <div class="map-tools tl">
-            <button type="button" class="tool-btn" id="layerBtn" aria-expanded="false" aria-controls="layerPanel"><svg class="ico"><use href="#i-layers"/></svg>레이어·범례</button>
+            <div class="tl-row">
+              <button type="button" class="tool-btn" id="layerBtn" aria-expanded="false" aria-controls="layerPanel"><svg class="ico"><use href="#i-layers"/></svg>레이어·범례</button>
+              <button type="button" class="tool-btn" id="tideBtn" data-act="tide" aria-pressed="false" title="만조 때 물이 차는 범위와 물때 시각 표시"><svg class="ico"><use href="#i-wave"/></svg>만조</button>
+            </div>
             <div class="layer-panel" id="layerPanel" hidden>
               <div style="display:flex;flex-direction:column;gap:4px"><span style="font-size:.8125rem;color:var(--ink-3);font-weight:600">지도 스타일</span>
                 <div class="seg" id="basemapSeg" role="group" aria-label="지도 스타일"></div>
@@ -636,12 +653,19 @@ button,a{-webkit-tap-highlight-color:transparent}
               <label><input type="checkbox" id="routeChk" checked> 내 동선 선 표시</label>
               <div class="legend" id="legend"></div>
               <p style="font-size:.8125rem;color:var(--ink-3)">위치와 구역은 개략적입니다. 실제 길찾기는 구글 지도 기준으로 하세요.</p>
+              <p style="font-size:.8125rem;color:var(--ink-3)">만조 범위는 NOAA 해수면 뷰어의 추정치입니다. 바람·폭풍 해일·파도는 반영하지 않습니다.</p>
             </div>
           </div>
-          <div class="course-banner" id="courseBanner" hidden>
-            <div class="t"><strong id="cbTitle"></strong><small id="cbMeta"></small></div>
-            <a class="btn sm" id="cbLink" target="_blank" rel="noopener">구글맵<svg class="ico sm"><use href="#i-ext"/></svg></a>
-            <button type="button" class="icon-btn sm" data-act="hide-course" aria-label="코스 숨기기"><svg class="ico sm"><use href="#i-x"/></svg></button>
+          <div class="map-banners">
+            <div class="course-banner" id="courseBanner" hidden>
+              <div class="t"><strong id="cbTitle"></strong><small id="cbMeta"></small></div>
+              <a class="btn sm" id="cbLink" target="_blank" rel="noopener">구글맵<svg class="ico sm"><use href="#i-ext"/></svg></a>
+              <button type="button" class="icon-btn sm" data-act="hide-course" aria-label="코스 숨기기"><svg class="ico sm"><use href="#i-x"/></svg></button>
+            </div>
+            <div class="tide-banner" id="tideBanner" role="status" hidden>
+              <div class="t"><strong id="tdTitle"></strong><small id="tdMeta"></small><small id="tdBasis"></small></div>
+              <button type="button" class="icon-btn sm" data-act="tide" aria-label="만조 지도 끄기"><svg class="ico sm"><use href="#i-x"/></svg></button>
+            </div>
           </div>
           <div class="map-tools tr">
             <button type="button" class="tool-btn sq" data-act="fit" title="전체 보기" aria-label="전체 보기"><svg class="ico"><use href="#i-fit"/></svg></button>
@@ -700,7 +724,7 @@ button,a{-webkit-tap-highlight-color:transparent}
           <ul class="guide-list">
             <li><b>대표 업체:</b> Blazing Saddles, Unlimited Biking, Bay City Bike. 피셔맨즈 워프 주변에 몰려 있고, 온라인 사전 예약이 보통 더 저렴합니다.</li>
             <li><b>보통 포함:</b> 헬멧, U자형 자물쇠, 코스 지도. 전기 자전거 옵션을 고르면 금문교 진입 오르막이 훨씬 편합니다.</li>
-            <li><b>페리 복귀:</b> 소살리토에서 자전거를 싣고 돌아옵니다. Golden Gate Ferry는 페리 빌딩(#14), Blue &amp; Gold Fleet는 피어 41(피셔맨즈 워프)에 도착합니다. 반납 장소에 맞는 배를 타세요.</li>
+            <li><b>페리 복귀:</b> 소살리토에서 자전거를 싣고 돌아옵니다. 지금은 Golden Gate Ferry만 다니고 페리 빌딩(#14)에 도착합니다. Blue &amp; Gold Fleet의 소살리토↔피어 41 노선은 2026년 5월부터 운항을 멈췄습니다. 워프 렌탈샵에 반납하려면 페리 빌딩에서 Embarcadero 해안길로 약 3km를 더 달리세요.</li>
             <li class="bad"><b>주의:</b> 주말 오후에는 페리 자전거 적재 공간이 차서 다음 배를 기다릴 수 있습니다.</li>
           </ul>
           <div class="actions" style="margin-top:12px"><a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&amp;query=bike+rental+Fisherman's+Wharf+San+Francisco">워프 렌탈샵 지도<svg class="ico sm"><use href="#i-ext"/></svg></a></div>
@@ -764,7 +788,7 @@ button,a{-webkit-tap-highlight-color:transparent}
             <div class="field"><label for="calcRate">환율 (원/달러)</label><input id="calcRate" type="number" inputmode="decimal" min="0" step="1" value="1325"></div>
           </div>
           <div class="calc-out" id="calcOut"></div>
-          <p class="note" style="margin-top:10px">SF 판매세는 8.625%입니다. 영수증에 Service charge(18~20%)가 이미 붙어 있으면 팁을 따로 줄 필요가 없습니다. 일부 식당은 직원 건강보험 명목의 추가 요금(3~6%)을 메뉴에 표시하고 받습니다. 카드 결제는 수수료가 1~2% 더 붙습니다.</p>
+          <p class="note" style="margin-top:10px">SF 판매세는 8.625%입니다. 영수증에 Service charge(18~20%)가 이미 붙어 있으면 팁을 따로 줄 필요가 없습니다. 일부 식당은 직원 건강보험 명목의 추가 요금(3~6%)을 메뉴에 표시하고 받습니다. 한국 카드로 결제하면 해외결제 수수료(약 1~1.5%)가 따로 붙습니다.</p>
           <p class="note" style="margin-top:8px" id="rateNote"></p>
         </div>
 
@@ -806,7 +830,7 @@ button,a{-webkit-tap-highlight-color:transparent}
         <div class="panel" id="safetyPanel">
           <h3><svg class="ico"><use href="#i-shield"/></svg>치안: 블록 단위로 달라집니다</h3>
           <ul class="guide-list">
-            <li class="bad"><b>텐더로인:</b> 숙소에서 남서쪽으로 한 블록(Geary St·Mason St 부근)부터 시작됩니다. 대략 Geary St 남쪽, Mason St 서쪽, Market St 북쪽, Polk St 동쪽입니다. 학회장이나 시청 쪽으로 갈 때 이 안을 가로질러 걷지 마세요.</li>
+            <li class="bad"><b>텐더로인:</b> 숙소에서 남서쪽으로 한 블록(Geary St·Mason St 부근)부터 시작됩니다. 대략 Geary St 남쪽, Mason St 서쪽, Market St 북쪽, Polk St~Van Ness Ave 동쪽입니다. 학회장이나 시청 쪽으로 갈 때 이 안을 가로질러 걷지 마세요.</li>
             <li class="bad"><b>미드마켓·6번가:</b> Market St 5번가~8번가 구간과 6th St 주변은 낮에도 어수선하고, 밤에는 도보 이동을 피하는 편이 좋습니다.</li>
             <li class="good"><b>비교적 쾌적한 곳:</b> 유니언 스퀘어 동쪽, 피셔맨즈 워프, 노스비치, 마리나, 프레시디오, 퍼시픽 하이츠, 페리 빌딩 일대.</li>
             <li><b>지도에서 보기:</b> 지도 레이어의 [도보 주의 구역]을 켜면 대략적인 범위가 빨간 점선으로 표시됩니다.</li>
@@ -829,7 +853,7 @@ button,a{-webkit-tap-highlight-color:transparent}
             <li><b>케이블카:</b> 1회 $9 (2025년 7월 인상). 하루 2번 이상 타면 MuniMobile 앱의 Visitor Passport 1일권($15, 케이블카 포함)이 이득입니다. 3일권 $35, 7일권 $47.</li>
             <li><b>버스·전차·지하철(Muni):</b> 성인 1회 $2.85(Clipper·MuniMobile), 현금 $3. Clipper 카드는 애플·구글 월렛에 바로 추가할 수 있습니다.</li>
             <li><b>센트럴 서브웨이 (T 노선):</b> Union Square/Market St역에서 Yerba Buena/Moscone역까지 한 정거장입니다. 비 오는 날이나 밤 통근에 쓰기 좋습니다.</li>
-            <li><b>웨이모 (Waymo):</b> 운전자 없는 자율주행 택시를 앱으로 부를 수 있습니다. 팁이 없고, 공항(SFO) 운행 여부는 앱에서 확인하세요.</li>
+            <li><b>웨이모 (Waymo):</b> 운전자 없는 자율주행 택시를 앱으로 부를 수 있습니다. 팁이 없습니다. 공항(SFO)은 터미널이 아니라 렌터카 센터 1층에서 타고 내리고, 터미널까지는 에어트레인으로 갑니다.</li>
           </ul>
         </div>
 
@@ -874,8 +898,8 @@ button,a{-webkit-tap-highlight-color:transparent}
 
         <div class="panel">
           <h3><svg class="ico"><use href="#i-info"/></svg>이 가이드의 정보 기준</h3>
-          <p class="src" style="margin-top:8px">요금·운영 정보는 2026년 10월 28일에 다시 확인했습니다. 가격, 운영 시간, 예약 정책은 바뀔 수 있으니 방문 전 구글 지도나 공식 사이트에서 확인하세요. 거리와 시간은 직선거리에 보정치를 곱한 추정입니다.</p>
-          <p class="src" style="margin-top:8px">지도: Esri, HERE, Garmin, © OpenStreetMap contributors (지도 타일·해안선), DataSF (SF 동네 경계). 주요 확인처: <a href="https://www.sfmta.com/index%2Ephp/notices/muni-fare-changes-effective-july-1-2025" target="_blank" rel="noopener">SFMTA 요금</a>, <a href="https://www.sfmta.com/projects/powered-scooter-share-program-permit" target="_blank" rel="noopener">SFMTA 킥보드 허가</a>, <a href="https://mofa.go.kr/us-sanfrancisco-en/wpge/m_4758/contents.do" target="_blank" rel="noopener">주샌프란시스코 총영사관</a>, <a href="https://www.sanfranciscopolice.org/contact-and-directory" target="_blank" rel="noopener">SFPD</a>.</p>
+          <p class="src" style="margin-top:8px">요금·운영 정보는 2026년 10월 29일에 다시 확인했습니다. 가격, 운영 시간, 예약 정책은 바뀔 수 있으니 방문 전 구글 지도나 공식 사이트에서 확인하세요. 거리와 시간은 직선거리에 보정치를 곱한 추정입니다.</p>
+          <p class="src" style="margin-top:8px">지도: Esri, HERE, Garmin, © OpenStreetMap contributors (지도 타일·해안선), DataSF (SF 동네 경계), NOAA (물때 예보·만조 범위). 주요 확인처: <a href="https://www.sfmta.com/index%2Ephp/notices/muni-fare-changes-effective-july-1-2025" target="_blank" rel="noopener">SFMTA 요금</a>, <a href="https://www.sfmta.com/projects/powered-scooter-share-program-permit" target="_blank" rel="noopener">SFMTA 킥보드 허가</a>, <a href="https://mofa.go.kr/us-sanfrancisco-en/wpge/m_4758/contents.do" target="_blank" rel="noopener">주샌프란시스코 총영사관</a>, <a href="https://www.sanfranciscopolice.org/contact-and-directory" target="_blank" rel="noopener">SFPD</a>.</p>
         </div>
       </div>
     </div>
@@ -941,7 +965,7 @@ const PLACES = [
   {id:34, cat:'BASECAMP', sub:'내 숙소', ko:'인 앳 유니언 스퀘어', en:'Inn at Union Square', hood:'유니언 스퀘어 · 440 Post St', area:'downtown', price:'숙소',
    lat:37.7883, lng:-122.4091, res:'NONE', baseTag:'내 숙소',
    resTip:'주소 440 Post St, San Francisco, CA 94102. Powell St와 Mason St 사이 Post St에 있습니다.',
-   must:'애플 스토어 도보 2분 · 케이블카 회차지 도보 7분 · 학회장 도보 13~15분',
+   must:'애플 스토어 도보 3~4분 · 케이블카 회차지 도보 6~7분 · 학회장 도보 13~15분',
    desc:'유니언 스퀘어 광장 바로 서쪽, Post St의 부티크 호텔입니다. 케이블카, 백화점, 학회장이 모두 걸어서 닿습니다.',
    tip:'호텔에서 남서쪽으로 한 블록만 가면 텐더로인 경계(Geary St·Mason St 부근)입니다. 학회장에 갈 때는 호텔을 나와 동쪽(유니언 스퀘어 방향)으로 걸어 Stockton St, 4th St 큰길을 타세요.',
    q:'Inn at Union Square 440 Post St San Francisco CA 94102'},
@@ -949,12 +973,12 @@ const PLACES = [
    lat:37.7841, lng:-122.4014, res:'NONE', baseTag:'메인 학회장',
    resTip:'주소 747 Howard St, San Francisco, CA 94103. 숙소에서 Post St → Stockton St → Market St 건너 4th St로 걸으면 약 13~15분(약 1.1km)입니다.',
    must:'SFMOMA 도보 3분 · 예르바 부에나 가든 · 타겟(메트레온) 바로 북쪽',
-   desc:'샌프란시스코 최대 컨벤션 센터의 남관입니다. 북쪽에 예르바 부에나 가든과 메트레온, 길 건너 북서쪽에 메리어트 마키스가 있습니다.',
+   desc:'샌프란시스코 최대 컨벤션 센터의 남관입니다. 북쪽에 예르바 부에나 가든과 메트레온, 북서쪽으로 두 블록쯤(Mission St 건너편)에 메리어트 마키스가 있습니다.',
    tip:'비 오는 날이나 늦은 밤에는 센트럴 서브웨이(Muni T 노선)가 편합니다. Union Square/Market St역에서 Yerba Buena/Moscone역까지 한 정거장입니다.',
    q:'Moscone Center South 747 Howard St San Francisco CA 94103'},
   {id:36, cat:'BASECAMP', sub:'학회장 호텔', ko:'메리어트 마키스 SF', en:'San Francisco Marriott Marquis', hood:'SoMa · 780 Mission St', area:'downtown', price:'학회장',
    lat:37.7850, lng:-122.4041, res:'NONE', baseTag:'학회장 호텔',
-   resTip:'주소 780 Mission St, San Francisco, CA 94103. 숙소에서 도보 약 10분(약 800m), 모스콘 사우스까지 도보 3~4분입니다.',
+   resTip:'주소 780 Mission St, San Francisco, CA 94103. 숙소에서 도보 약 8~9분(약 650m), 모스콘 사우스까지 도보 5~7분입니다.',
    must:'39층 The View Lounge 야경 · 학회 세션·리셉션 장소',
    desc:'모스콘 센터 학회 때 분과 세션과 리셉션이 자주 열리는 대형 컨벤션 호텔입니다.',
    tip:'39층 The View Lounge는 통유리로 다운타운 야경이 보이는 바입니다. 운영 시간은 자주 바뀌니 방문 전 확인하세요.',
@@ -977,14 +1001,14 @@ const PLACES = [
   {id:3, cat:'FOOD', sub:'버거', ko:'인앤아웃 버거 피셔맨즈 워프점', en:"In-N-Out Burger Fisherman's Wharf", hood:"Fisherman's Wharf", area:'wharf', price:'$',
    lat:37.8077, lng:-122.4186, res:'WALKIN', resLabel:'예약 불가 · 현장 주문',
    resTip:'예약과 배달이 안 되는 현장 주문 매장입니다. 점심·저녁 피크를 피하면 대기가 짧습니다.',
-   must:'더블더블 애니멀 스타일, 구운 양파 추가, 쉐이크',
+   must:'더블더블 애니멀 스타일, 애니멀 스타일 감자튀김, 쉐이크',
    desc:'샌프란시스코 시내에 있는 유일한 인앤아웃입니다.',
    tip:'메뉴판에 없는 "애니멀 스타일(Animal Style)"을 말하면 머스터드에 구운 패티와 구운 양파, 특제 소스가 들어갑니다.',
    q:'In-N-Out Burger 333 Jefferson St San Francisco CA'},
   {id:4, cat:'FOOD', sub:'나폴리 피자', ko:'토니스 피자 나폴레타나', en:"Tony's Pizza Napoletana", hood:'North Beach', area:'northbeach', price:'$$',
-   lat:37.8003, lng:-122.4090, res:'RECOMMENDED', resLabel:'일부 예약 · 현장 대기',
-   resTip:'OpenTable로 일부 좌석을 예약할 수 있습니다. 예약이 없으면 도착해서 대기를 걸고 앞 워싱턴 스퀘어를 산책하세요.',
-   resUrl:'https://www.opentable.com/r/tonys-pizza-napoletana-san-francisco',
+   lat:37.8003, lng:-122.4090, res:'WALKIN', resLabel:'예약 불가 · Yelp 대기 등록',
+   resTip:'예약을 받지 않는 워크인 전용 매장입니다. 가기 전에 Yelp 앱으로 대기 등록(Waitlist)을 걸어 두고, 차례가 올 때까지 앞 워싱턴 스퀘어를 산책하세요.',
+   resUrl:'https://www.yelp.com/biz/tonys-pizza-napoletana-san-francisco',
    must:'마르게리타(하루 수량 한정), 뉴요커, 칼초네',
    desc:'피자 월드컵 우승 경력의 토니 제미냐니 셰프 매장입니다. 피자 스타일마다 다른 화덕을 씁니다.',
    tip:'대기가 너무 길면 옆 조각 피자 가게(Slice House)에서 바로 포장할 수 있습니다.',
@@ -992,7 +1016,7 @@ const PLACES = [
   {id:5, cat:'FOOD', sub:'해산물·던저니스 크랩', ko:'스코마스', en:"Scoma's Restaurant", hood:"Fisherman's Wharf (Pier 47)", area:'wharf', price:'$$$',
    lat:37.8090, lng:-122.4188, res:'RECOMMENDED', resLabel:'예약 권장 (OpenTable)',
    resTip:'저녁 피크와 주말에는 대기가 길어 2~7일 전 예약을 권합니다.',
-   resUrl:'https://scomas.com/',
+   resUrl:'https://scomas.com/reservations/',
    must:'레이지맨 치오피노, 던저니스 크랩 요리',
    desc:'피어 47 부둣가 안쪽의 1965년 개업 해산물 레스토랑입니다.',
    tip:'껍질을 다 발라서 나오는 레이지맨 치오피노를 고르면 손에 묻히지 않고 먹을 수 있습니다.',
@@ -1034,6 +1058,45 @@ const PLACES = [
    tip:'숙소로 돌아올 때는 Geary St 큰길을 따라 동쪽 Mason St까지 걸은 뒤 Post St로 올라가세요. O\'Farrell St나 Ellis St 쪽으로 내려가지 마세요.',
    caution:'가게는 텐더로인 북쪽 경계(Geary St 남쪽)에 있습니다. 이른 저녁 도보는 무난하지만, 밤 9시 이후 혼자라면 우버로 2~3분 이동이 낫습니다.',
    q:'Mensho Tokyo SF 672 Geary St San Francisco CA'},
+  {id:37, cat:'FOOD', sub:'아침식사·팬케이크 (숙소 도보 1~2분)', ko:'시어스 파인 푸드', en:'Sears Fine Food', hood:'유니언 스퀘어 · 439 Powell St', area:'downtown', price:'$$',
+   lat:37.7888, lng:-122.4087, res:'WALKIN', resLabel:'아침 예약 불가 · 현장 대기',
+   resTip:'아침 식사는 예약을 받지 않아 도착 순서대로 앉습니다. 점심(12:00~14:30)만 공식 홈페이지에서 48시간 전까지 예약할 수 있습니다.',
+   resUrl:'https://www.searsfinefood.com/book-a-table',
+   must:'18 스웨디시 팬케이크(메이플 시럽), 에그 플로렌틴, 올미트 오믈렛',
+   desc:'1938년부터 영업한 유니언 스퀘어의 아침 식당입니다. 숙소에서 Powell St 모퉁이만 돌면 되는 도보 1~2분 거리입니다.',
+   tip:'매일 오전 7시~오후 3시만 열고 저녁 영업은 현재 쉽니다. 주말 늦은 아침에는 줄이 생기니 학회 가기 전 7~8시대에 가면 여유롭습니다.',
+   q:'Sears Fine Food 439 Powell St San Francisco CA 94102'},
+  {id:38, cat:'FOOD', sub:'딤섬 (학회장 도보 10~12분)', ko:'양크 싱 스티븐슨점', en:'Yank Sing (Stevenson St)', hood:'FiDi · 49 Stevenson St', area:'downtown', price:'$$~$$$',
+   lat:37.7899, lng:-122.3993, res:'RECOMMENDED', resLabel:'예약 권장 (OpenTable) · 점심만',
+   resTip:'OpenTable로 예약할 수 있습니다. 화~금 오전 11시~오후 3시, 주말 오전 10시~오후 3시 점심만 영업하고 월요일은 쉽니다.',
+   resUrl:'https://www.opentable.com/yank-sing-stevenson-street',
+   must:'샤오롱바오, 하가우(새우 딤섬), 북경오리 번, 차슈바오',
+   desc:'1958년 차이나타운에서 시작한 샌프란시스코 대표 딤섬집으로, 카트를 밀고 다니는 전통 방식입니다. 학회장에서 도보 약 10~12분입니다.',
+   tip:'2026년 9월 Rincon Center(101 Spear St)점이 문을 닫았으니 지도에서 49 Stevenson St인지 꼭 확인하세요. 카트에서 집는 접시마다 값이 붙어 계산서가 빨리 올라갑니다.',
+   q:'Yank Sing 49 Stevenson St San Francisco CA 94105'},
+  {id:39, cat:'FOOD', sub:'광둥요리·크랩', ko:'R&G 라운지', en:'R&G Lounge', hood:'차이나타운 · 631 Kearny St', area:'downtown', price:'$$~$$$',
+   lat:37.7941, lng:-122.4049, res:'RECOMMENDED', resLabel:'예약 권장 (OpenTable·Tock)',
+   resTip:'OpenTable 또는 Tock으로 예약합니다. 쉬는 날 없이 매일 오전 11시부터 저녁 9시 전후까지 엽니다.',
+   resUrl:'https://www.opentable.com/r/r-and-g-lounge-reservations-san-francisco',
+   must:'솔트&페퍼 던저니스 크랩, R&G 스페셜 비프, 북경오리, 허니 월넛 새우',
+   desc:'1985년부터 영업한 차이나타운 광둥요리 명소입니다. 숙소에서 차이나타운 게이트를 지나 Grant Ave를 따라 도보 약 12~15분입니다.',
+   tip:'크랩은 시가(Market Price)라 주문 전에 가격을 확인하세요. 점심에는 덮밥·국수·광둥식 바비큐 위주의 런치 메뉴로 가볍게 먹을 수 있습니다.',
+   q:'R&G Lounge 631 Kearny St San Francisco CA 94108'},
+  {id:40, cat:'FOOD', sub:'해산물 그릴·노포', ko:'태딕 그릴', en:'Tadich Grill', hood:'FiDi · 240 California St', area:'downtown', price:'$$$',
+   lat:37.7934, lng:-122.3995, res:'RECOMMENDED', resLabel:'예약 가능 · 카운터석 선착순',
+   resTip:'공식 홈페이지의 OpenTable 창으로 예약하고, 예약 없이 가도 선착순으로 앉을 수 있습니다. 일요일은 쉽니다.',
+   resUrl:'https://tadichgrillsf.com/reservations/',
+   must:'시푸드 치오피노, 팬프라이 샌드댑, 크랩&새우 아 라 몬자, 보스턴 클램 차우더',
+   desc:'1849년에 문을 열어 캘리포니아에서 가장 오래 영업을 이어 온 레스토랑입니다. 숙소에서 도보 약 15~18분입니다.',
+   tip:'1~2명이면 회전이 빠른 카운터석이 가장 좋은 자리입니다. 평일 점심과 저녁 사이(오후 2:30~4:30)에 쉬는 시간이 있을 수 있으니 시간을 확인하고 가세요.',
+   q:'Tadich Grill 240 California St San Francisco CA 94111'},
+  {id:41, cat:'FOOD', sub:'커피·옥상 공원', ko:'앤디타운 커피 세일즈포스 파크점', en:'Andytown Coffee Roasters (Salesforce Park)', hood:'SoMa(트랜스베이) · 181 Fremont St 7층', area:'downtown', price:'$',
+   lat:37.7899, lng:-122.3953, res:'WALKIN', resLabel:'현장 주문',
+   resTip:'예약이 필요 없습니다. 평일 오전 7시~오후 5시, 주말 오전 9시~오후 3시 영업합니다.',
+   must:'스노이 플로버(탄산수+에스프레소+흑설탕 시럽+휘핑크림), 아이리시 소다 팔, 스콘',
+   desc:'아우터 선셋에서 시작한 로스터리의 다운타운 플래그십으로, 세일즈포스 파크(트랜짓 센터 옥상 공원)와 이어진 7층에 있습니다. 학회장에서 도보 약 12분입니다.',
+   tip:'세일즈포스 파크에서 스카이 브리지로 건너가거나 181 Fremont 로비 엘리베이터로 7층에 올라갑니다. 숙소에서 도보 6~7분인 66 Kearny St에도 평일 전용 매장(오전 7시~오후 5시)이 있어 학회 가는 길에 들르기 좋습니다.',
+   q:'Andytown Coffee Roasters 181 Fremont St San Francisco CA 94105'},
 
   {id:11, cat:'ATTRACTION', sub:'랜드마크', ko:'골든게이트 브리지 웰컴 센터', en:'Golden Gate Bridge Welcome Center', hood:'Presidio', area:'presidio', price:'무료',
    lat:37.8077, lng:-122.4750, res:'NONE', resLabel:'예약 불필요',
@@ -1051,11 +1114,11 @@ const PLACES = [
    q:'Pier 39 San Francisco CA'},
   {id:13, cat:'ATTRACTION', sub:'역사 투어', ko:'알카트라즈 섬 (피어 33 출발)', en:'Alcatraz Island · Pier 33', hood:'Embarcadero', area:'embarcadero', price:'$$$',
    lat:37.8066, lng:-122.4047, res:'REQUIRED', resLabel:'예약 필수 (2~4주 전)',
-   resTip:'당일 현장 구매는 거의 불가능합니다. 공식 운영사 Alcatraz City Cruises에서 날짜와 시간을 예매하세요.',
-   resUrl:'https://www.cityexperiences.com/san-francisco/city-cruises/alcatraz/',
+   resTip:'당일 현장 구매는 거의 불가능합니다. 공식 운영사 Alcatraz City Cruises에서 날짜와 시간을 예매하세요. 2026년 10월 26일~11월 18일은 부두 공사로 섬이 휴장합니다(11월 19일 재개 예정).',
+   resUrl:'https://alcatrazcitycruises.com/tickets/',
    must:'한국어 오디오 가이드 감옥 투어, 배에서 보는 스카이라인',
    desc:'탈옥이 불가능하다고 알려졌던 옛 연방 교도소 섬입니다. 실제 교도관과 수감자 목소리로 만든 오디오 가이드가 인상적입니다.',
-   tip:'출항 30분 전까지 피어 33에 도착하고, 사진 있는 신분증을 챙기세요. 2026년 4월처럼 부두 수리 등으로 갑자기 운항이 멈추는 일이 있으니 전날 공지를 확인하세요.',
+   tip:'2026년 10월 26일~11월 18일은 부두 말뚝 교체 공사로 섬에 들어갈 수 없습니다(11월 19일 재개 예정, 날씨에 따라 늦어질 수 있음). 이 기간 예약은 자동 취소·환불되고, 섬에 내리지 않는 베이 크루즈로 바꿀 수 있습니다. 1월·4월에도 부두 문제로 갑자기 멈춘 적이 있으니 전날 공지를 확인하세요. 출항 30분 전까지 피어 33에 도착하고, 사진 있는 신분증을 챙기세요.',
    q:'Pier 33 Alcatraz Landing San Francisco CA'},
   {id:14, cat:'ATTRACTION', sub:'푸드 마켓·해안 산책', ko:'페리 빌딩 마켓플레이스', en:'Ferry Building Marketplace', hood:'Embarcadero', area:'embarcadero', price:'무료 입장',
    lat:37.7955, lng:-122.3937, res:'NONE', resLabel:'예약 불필요',
@@ -1081,19 +1144,64 @@ const PLACES = [
    q:'California Academy of Sciences Golden Gate Park San Francisco CA'},
   {id:17, cat:'ATTRACTION', sub:'현대미술관 (학회장 옆)', ko:'SFMOMA 현대미술관', en:'San Francisco Museum of Modern Art', hood:'SoMa · 151 3rd St', area:'downtown', price:'$$$',
    lat:37.7857, lng:-122.4011, res:'RECOMMENDED', resLabel:'온라인 예매 권장',
-   resTip:'현장 구매도 되지만 온라인 예매가 빠릅니다. 수요일 휴관이 기본이니 방문 전 운영일을 확인하세요.',
+   resTip:'일반 입장권(성인 $30)은 현장 구매도 됩니다. 단, 2026년 10월 3일~2027년 2월 7일 열리는 RM(BTS) 전시 「RM x SFMOMA」는 일반권으로 못 들어가고, 시간지정 티켓(평일 $40, 주말 $42)을 온라인으로 미리 사야 합니다. 수요일 휴관, 목요일은 낮 12시~밤 8시, 나머지 요일은 오전 10시~오후 5시입니다.',
    resUrl:'https://www.sfmoma.org/',
    must:'워홀·로스코·칼로 컬렉션, 리빙 월, 야외 조각 테라스',
    desc:'모스콘 센터 사우스와 메리어트 마키스 바로 옆 블록이라 학회 빈 시간에 다녀오기 좋습니다.',
-   tip:'1층 일부 전시(리처드 세라 대형 조각 등)는 티켓 없이 볼 수 있고, 1층 뮤지엄 스토어는 디자인 기념품이 많습니다.',
+   tip:'1·2층 무료 공간(Howard St 입구 쪽 대형 설치작품 등)은 티켓 없이 볼 수 있고, 1층 뮤지엄 스토어는 디자인 기념품이 많습니다.',
    q:'SFMOMA 151 3rd St San Francisco CA'},
   {id:18, cat:'ATTRACTION', sub:'케이블카', ko:'파월 & 마켓 케이블카 회차지', en:'Powell & Market Cable Car Turnaround', hood:'Union Square / Market St', area:'downtown', price:'$9 (1회)',
    lat:37.7846, lng:-122.4078, res:'WALKIN', resLabel:'현장 선착순 탑승',
-   resTip:'좌석 예약이 없습니다. MuniMobile 앱에서 1회권($9)이나 Visitor Passport 1일권($15, 케이블카 포함)을 미리 사 두세요.',
+   resTip:'좌석 예약이 없습니다. MuniMobile 앱에서 1회권($9)이나 Visitor Passport 1일권($15, 케이블카 포함)을 미리 사 두세요. 2027년 1월부터 1회권을 $12로 올리는 안이 추진 중입니다.',
    must:'나무 회전판 위에서 사람이 케이블카를 돌리는 장면, 언덕 노선 탑승',
-   desc:'1873년부터 운행한 수동 케이블카 노선의 출발점입니다. 숙소에서 도보 약 7분입니다.',
+   desc:'1873년 시작된 샌프란시스코 케이블카 가운데 파월 노선(1888년 개통)의 출발점입니다. 숙소에서 도보 약 7분입니다.',
    tip:'회차지 줄이 길면 California St 노선(줄이 짧은 편)을 타세요. 숙소 앞 Powell & Post 정류장은 만석이면 그냥 지나갈 때가 많습니다.',
    q:'Powell and Market Cable Car Turnaround San Francisco CA'},
+  {id:58, cat:'ATTRACTION', sub:'NBA 경기장', ko:'체이스 센터 (골든스테이트 워리어스)', en:'Chase Center · Golden State Warriors', hood:'Mission Bay · 1 Warriors Way', area:'downtown', price:'$$$',
+   lat:37.7679, lng:-122.3874, res:'REQUIRED', resLabel:'경기 티켓 필요',
+   resTip:'워리어스 홈경기 티켓은 공식 사이트(NBA.com/Warriors)에서 모바일 티켓으로 삽니다. 정규 시즌은 10월 말부터 4월 중순까지이고, 경기 일정과 시작 시각은 구매 전 공식 일정에서 확인하세요.',
+   resUrl:'https://www.nba.com/warriors/tickets',
+   must:'워리어스 홈경기, 경기 전 Thrive City 광장, 팀 스토어',
+   desc:'NBA 골든스테이트 워리어스의 홈구장입니다. 학회장 남쪽 미션 베이에 있고, 학회장 옆 역에서 Muni T 노선으로 갈아타지 않고 갑니다.',
+   tip:'이 경기장 행사 티켓이 있으면 그날 Muni 버스·전철을 무료로 탈 수 있습니다(케이블카 제외). 학회장 옆 Yerba Buena/Moscone역에서 T 노선을 타고 UCSF/Chase Center역에서 내리세요. 백팩은 반입 금지이고, 14×14×6인치보다 큰 가방은 유료로 맡겨야 합니다.',
+   q:'Chase Center 1 Warriors Way San Francisco CA 94158'},
+  {id:59, cat:'ATTRACTION', sub:'MLB 야구장', ko:'오라클 파크 (샌프란시스코 자이언츠)', en:'Oracle Park · San Francisco Giants', hood:'SoMa · 24 Willie Mays Plaza', area:'embarcadero', price:'투어 $46',
+   lat:37.7786, lng:-122.3893, res:'RECOMMENDED', resLabel:'구장 투어 온라인 예매 권장',
+   resTip:'MLB 정규 시즌(보통 3월 말~9월)이 끝난 뒤에는 구장 투어로 들어갑니다. 투어는 매일 오전 10:30·낮 12:30(여름엔 회차 추가), 성인 $46입니다. 매진될 수 있어 공식 사이트 예매를 권하고, 낮 경기가 있는 날은 투어가 없습니다.',
+   resUrl:'https://www.mlb.com/giants/ballpark/tours/daily-public',
+   must:'바다 쪽 외야 맥코비 코브, 대형 콜라병·글러브 조형물, 베이 브리지가 보이는 관중석',
+   desc:'바다에 맞닿은 자이언츠 홈구장입니다. 학회장에서 도보 약 15~20분이고, 러닝 2 코스(모스콘 → 오라클 파크)의 도착점입니다.',
+   tip:'투어는 3rd St 쪽 O\'Doul 게이트 옆 후안 마리찰 동상 앞에서 모입니다. 투명한 백팩도 반입할 수 없으니 작은 가방만 챙기세요.',
+   q:'Oracle Park 24 Willie Mays Plaza San Francisco CA 94107'},
+  {id:50, cat:'ATTRACTION', sub:'차이나타운 입구 (숙소 도보 7분)', ko:'차이나타운 드래곤 게이트 & 그랜트 애비뉴', en:'Chinatown Dragon Gate & Grant Avenue', hood:'Chinatown · Grant Ave & Bush St', area:'downtown', price:'무료',
+   lat:37.7907, lng:-122.4056, res:'NONE', resLabel:'예약 불필요',
+   resTip:'게이트와 거리는 언제든 걸어서 지나갈 수 있습니다. 상점·식당 영업시간은 가게마다 다릅니다.',
+   must:'드래곤 게이트(1970년, 「天下為公」 현판), 홍등 걸린 그랜트 애비뉴 상점가, 웨이벌리 플레이스 채색 발코니, 딤섬·베이커리',
+   desc:'차이나타운의 남쪽 정문입니다. 숙소에서 Post St를 따라 동쪽으로 가다 Grant Ave에서 북쪽으로 꺾으면 걸어서 6~7분입니다.',
+   tip:'게이트를 지나 그랜트 애비뉴를 따라 북쪽으로 쭉 걸으면 노스비치를 거쳐 코잇 타워까지 이어집니다. 기념품 가격은 가게마다 차이가 크니 몇 곳 비교하고 사세요.',
+   q:'Dragon Gate Grant Ave and Bush St San Francisco CA 94108'},
+  {id:51, cat:'ATTRACTION', sub:'360도 전망 타워', ko:'코잇 타워', en:'Coit Tower', hood:'Telegraph Hill · 1 Telegraph Hill Blvd', area:'northbeach', price:'$11 (전망대)',
+   lat:37.8024, lng:-122.4058, res:'WALKIN', resLabel:'현장 구매',
+   resTip:'전망대 엘리베이터 표는 타워에서 사며, 비거주자 기준 성인 $11, 시니어·12~17세 $8, 5~11세 $3입니다. 11~3월은 오전 10시~오후 5시(4~10월은 오후 6시까지)이고 표는 마감 1시간 전까지 팝니다. 추수감사절·크리스마스·1월 1일은 휴관입니다.',
+   must:'꼭대기 360도 전망(베이브리지·금문교·알카트라즈), 1층 1930년대 벽화(무료), 텔레그래프 힐 산책',
+   desc:'텔레그래프 힐 꼭대기에 1933년 세운 전망 타워입니다. 숙소에서 우버로 10분, 차이나타운·노스비치를 지나 걸으면 30분 남짓 걸립니다.',
+   tip:'꼭대기 주차 공간이 작아 차로 오르면 기다릴 수 있습니다. 노스비치에서 걸어 올라가는 길은 짧지만 가파릅니다. 맑은 날 오후가 전망이 가장 좋습니다.',
+   q:'Coit Tower 1 Telegraph Hill Blvd San Francisco CA 94133'},
+  {id:52, cat:'ATTRACTION', sub:'체험형 과학관 · 목요일 밤 성인 전용', ko:'익스플로라토리움', en:'Exploratorium', hood:'Embarcadero · Pier 15', area:'embarcadero', price:'$39.95',
+   lat:37.8009, lng:-122.3985, res:'RECOMMENDED', resLabel:'온라인 예매 권장',
+   resTip:'성인(18~64세) 낮 입장권은 $39.95, 목요일 밤 「After Dark」(18세 이상, 오후 6~10시)는 $22.95입니다. 현장·전화로도 사지만 공식 사이트에서 미리 사두면 편합니다. 월요일 휴관이고, 일요일 일반 입장은 낮 12시부터입니다.',
+   resUrl:'https://www.exploratorium.edu/tickets',
+   must:'직접 만지고 실험하는 전시 650여 개, 목요일 밤 After Dark, 완전한 어둠 속 촉각 체험 「택타일 돔」(별도 예약 $15.95), 11월 19일부터 빛 전시 「Glow」',
+   desc:'과학·예술·지각을 몸으로 체험하는 피어 15의 박물관입니다. 숙소에서 우버로 10~15분, 페리 빌딩에서 엠바카데로를 따라 걸어 15분입니다.',
+   tip:'학회가 끝난 목요일 저녁이라면 After Dark를 추천합니다. 음료를 들고 어른끼리 전시를 즐길 수 있고 낮보다 싸며, 18세 이상만 들어가니 신분증을 챙기세요.',
+   q:'Exploratorium Pier 15 Embarcadero San Francisco CA 94111'},
+  {id:53, cat:'ATTRACTION', sub:'무료 박물관 · 케이블카 동력실', ko:'케이블카 박물관', en:'Cable Car Museum', hood:'Nob Hill · 1201 Mason St', area:'nobhill', price:'무료',
+   lat:37.7947, lng:-122.4115, res:'NONE', resLabel:'예약 불필요',
+   resTip:'무료이고 예약 없이 들어갑니다. 화~목 오전 10시~오후 4시, 금~일 오전 10시~오후 5시이고 월요일과 1월 1일·추수감사절·크리스마스는 쉽니다.',
+   must:'케이블을 감는 거대한 엔진과 바퀴, 지하 케이블 도르래 관람창, 최초의 케이블카 회사 Clay Street Hill Railroad의 8호 차',
+   desc:'지금도 시내 케이블카의 케이블을 끌어당기는 동력실 겸 차고 안에 있는 박물관입니다. 숙소에서 Mason St 언덕을 걸어 올라 15분 정도입니다.',
+   tip:'파월 노선 케이블카가 박물관 옆 Washington St·Mason St를 지나가니, 케이블카를 타고 와서 동력실을 보고 다시 타면 동선이 깔끔합니다. 월요일 휴관을 잊지 마세요.',
+   q:'Cable Car Museum 1201 Mason St San Francisco CA 94108'},
 
   {id:19, cat:'SHOPPING', sub:'도심 플래그십', ko:'유니언 스퀘어 & 애플 스토어', en:'Union Square & Apple Union Square', hood:'Union Square', area:'downtown', price:'$$~$$$',
    lat:37.7884, lng:-122.4067, res:'NONE', resLabel:'예약 불필요',
@@ -1124,12 +1232,19 @@ const PLACES = [
    tip:'타르틴(#2)과 돌로레스 파크에서 도보 5분입니다. 옆 Mission St보다 Valencia St 쪽이 걷기 편합니다.',
    q:'826 Valencia St San Francisco CA'},
   {id:23, cat:'SHOPPING', sub:'교외 아울렛', ko:'SF 프리미엄 아울렛 (리버모어)', en:'San Francisco Premium Outlets', hood:'Livermore (East Bay)', area:'outer', price:'$$',
-   lat:37.6993, lng:-121.8400, res:'NONE', resLabel:'예약 불필요 · VIP 쿠폰 사전 가입',
-   resTip:'출발 전 Simon 웹사이트에서 무료 VIP Club에 가입하면 추가 할인 쿠폰을 받을 수 있습니다.',
+   lat:37.6990, lng:-121.8442, res:'NONE', resLabel:'예약 불필요 · Simon+ 사전 가입',
+   resTip:'출발 전 Simon 웹사이트·앱에서 무료 멤버십 Simon+(예전 VIP Shopper Club)에 가입하면 추가 할인 쿠폰을 받을 수 있습니다.',
    must:'명품부터 미국 캐주얼까지 약 180개 매장',
    desc:'북캘리포니아 최대 규모의 프리미엄 아울렛입니다.',
-   tip:'시내에서 차로 약 50~60분입니다. 대중교통은 BART(Dublin/Pleasanton역) 뒤에 버스나 우버를 갈아타야 해서 반나절 이상 걸립니다.',
+   tip:'시내에서 차로 약 50~60분입니다. 대중교통은 BART로 Dublin/Pleasanton역까지 간 뒤 Wheels 14번 버스나 우버로 갈아타야 해서 반나절 이상 걸립니다.',
    q:'San Francisco Premium Outlets 2774 Livermore Outlets Dr Livermore CA'},
+  {id:57, cat:'SHOPPING', sub:'일본 서점·잡화', ko:'재팬타운 (기노쿠니야·다이소)', en:'Japantown · Japan Center Malls', hood:'Japantown · 1737 Post St', area:'nobhill', price:'$$',
+   lat:37.7851, lng:-122.4302, res:'NONE', resLabel:'예약 불필요',
+   resTip:'예약 없이 쇼핑몰로 들어가면 됩니다. 기노쿠니야 서점(1581 Webster St)은 매일 오전 10시 30분~오후 8시, 같은 건물 2층 문구점 마이도(Maido)는 오전 11시~오후 7시입니다.',
+   must:'기노쿠니야 서점(만화·아트북·문구), 2026년 10월 새 단장한 다이소, 오층탑이 있는 피스 플라자, 라멘·디저트 가게',
+   desc:'1968년 문을 연 재팬 센터 쇼핑몰이 중심인 일본인 거리입니다. 숙소 한 블록 아래 Geary St에서 38번 버스로 15분, 우버로 10분입니다.',
+   tip:'서쪽 필모어 스트리트까지 걸어서 5분이라 묶어 다니기 좋습니다. 피스 플라자는 11월 중순까지 리노베이션 마무리 공사로 펜스가 남아 있을 수 있고, 시간이 없으면 학회장 근처 기노쿠니야 팝업(717 Market St, 12월 말까지 매일 오전 11시~오후 7시)도 있습니다.',
+   q:'Japan Center Malls 1737 Post St San Francisco CA 94115'},
 
   {id:24, cat:'MART', sub:'기념품·식료품', ko:'트레이더 조 노스비치점', en:"Trader Joe's North Beach", hood:'Bay St · 워프 인근', area:'northbeach', price:'$',
    lat:37.8054, lng:-122.4140, res:'NONE', resLabel:'예약 불필요',
@@ -1143,7 +1258,7 @@ const PLACES = [
    resTip:'핫푸드·샐러드바 도시락, 와인, 과일을 살 수 있습니다.',
    must:'핫푸드·샐러드바, 나파 와인, 365 자체 브랜드',
    desc:'외식비와 팁이 부담될 때 숙소에서 먹을 저녁을 사기 좋은 유기농 마트입니다.',
-   tip:'하우스 오브 프라임 립(#6)에서 두 블록 아래, 조용한 주거지역에 있습니다.',
+   tip:'하우스 오브 프라임 립(#6)에서 남쪽으로 세 블록(도보 약 5~6분), 조용한 주거지역에 있습니다.',
    q:'Whole Foods Market 1765 California St San Francisco CA'},
   {id:26, cat:'MART', sub:'대형 마트 (학회장 앞)', ko:'타겟 메트레온점', en:'Target San Francisco Metreon', hood:'SoMa · 789 Mission St', area:'downtown', price:'$~$$',
    lat:37.7845, lng:-122.4036, res:'NONE', resLabel:'예약 불필요',
@@ -1159,6 +1274,20 @@ const PLACES = [
    desc:'돌로레스 파크 모퉁이의 로컬 마켓입니다. 아이스크림 가게(Creamery)는 같은 블록 별도 매장입니다.',
    tip:'마켓에서 샌드위치를 사고 크리머리에서 아이스크림을 사서 돌로레스 파크 언덕에서 먹는 조합이 인기입니다.',
    q:'Bi-Rite Market 3639 18th St San Francisco CA'},
+  {id:42, cat:'MART', sub:'식료품·기념품 (학회장 길목)', ko:'트레이더 조 4th & 마켓점', en:"Trader Joe's 4th & Market", hood:'4th St & Market St · 10 4th St', area:'downtown', price:'$',
+   lat:37.7854, lng:-122.4056, res:'NONE', resLabel:'예약 불필요',
+   resTip:'매일 오전 9시~오후 9시 영업합니다(2026년 11월 초 기준). 4th St 쪽 입구에서 에스컬레이터를 타고 지하 매장으로 내려갑니다.',
+   must:'미니 캔버스 토트백, 다크초콜릿 피넛버터 컵, 말린 망고, 샐러드·과일컵',
+   desc:'숙소와 학회장 사이 Market St 모퉁이에 있는 지하 트레이더 조입니다. 숙소에서 도보 약 7분, 메리어트 마키스에서 2분입니다.',
+   tip:'학회 끝나고 바로 들러 선물과 숙소 간식을 해결하기 좋습니다. 주차장이 없으니 걸어서 가세요.',
+   q:"Trader Joe's 10 4th St San Francisco CA 94103"},
+  {id:43, cat:'MART', sub:'약국·편의점 (숙소 도보 2분)', ko:'월그린 파월 & 서터점', en:'Walgreens (Powell & Sutter)', hood:'유니언 스퀘어 · 459 Powell St', area:'downtown', price:'$~$$',
+   lat:37.7891, lng:-122.4088, res:'NONE', resLabel:'예약 불필요',
+   resTip:'매장은 매일 오전 7시~자정까지 엽니다. 처방약 카운터는 월~금 9~19시, 토 10~18시이고 일요일은 쉽니다.',
+   must:'생수·음료, 상비약(타이레놀·애드빌·멜라토닌), 선크림·립밤, 간단한 간식',
+   desc:'숙소에서 Powell St로 나가 한 블록 위 Sutter St 모퉁이에 있는 약국 겸 편의점입니다. 밤늦게 물이나 약이 필요할 때 가장 가깝습니다.',
+   tip:'유니언 스퀘어 주변 월그린·CVS가 최근 몇 년 사이 여러 곳 문을 닫아, 늦게까지 여는 가장 가까운 드럭스토어입니다. 일반 상비약은 진열대에서 바로 삽니다.',
+   q:'Walgreens 459 Powell St San Francisco CA 94102'},
 
   {id:28, cat:'PHOTO', sub:'금문교 전망 1순위', ko:'배터리 스펜서', en:'Battery Spencer', hood:'Marin Headlands', area:'presidio', price:'무료',
    lat:37.8277, lng:-122.4816, res:'NONE', resLabel:'예약 불필요',
@@ -1193,15 +1322,36 @@ const PLACES = [
    resTip:'국립 휴양지 해변이라 예약 없이 갑니다.',
    must:'파도와 바위 너머로 보이는 금문교 옆모습, 일몰',
    desc:'프레시디오 서쪽 해안 절벽 아래 해변입니다.',
-   tip:'베이커 비치는 차로 바로 가서 편하고, 마샬 비치는 절벽길을 15분 내려가야 하지만 다리가 더 가깝게 보입니다.',
+   tip:'베이커 비치는 차로 바로 가서 편하고, 마샬 비치는 절벽길을 15분 내려가야 하지만 다리가 더 가깝게 보입니다. 만조 때는 해변 폭이 좁아지니 지도의 [만조]를 켜서 물때를 보고 가세요.',
    q:'Baker Beach San Francisco CA'},
   {id:33, cat:'PHOTO', sub:'360도 전망·야경', ko:'트윈픽스 전망대', en:'Twin Peaks Summit', hood:'Twin Peaks', area:'west', price:'무료',
-   lat:37.7521, lng:-122.4477, res:'NONE', resLabel:'예약 불필요',
+   lat:37.7549, lng:-122.4466, res:'NONE', resLabel:'예약 불필요',
    resTip:'무료 전망대입니다. 맑은 날 일몰 30분 전 우버로 올라가는 것을 추천합니다.',
    must:'Market St 일직선 도로, 다운타운, 금문교·베이 브리지 파노라마',
    desc:'해발 약 280m 봉우리에서 시내와 만을 360도로 볼 수 있습니다.',
    tip:'안개가 끼면 아무것도 안 보일 수 있습니다. 정상은 시내보다 훨씬 춥고 바람이 셉니다. 돌아올 우버를 미리 확인하세요.',
-   q:'Twin Peaks Christmas Tree Point Rd San Francisco CA'}
+   q:'Twin Peaks Christmas Tree Point Rd San Francisco CA'},
+  {id:54, cat:'PHOTO', sub:'해안 유적·일몰 (물때 확인)', ko:'수트로 배스 유적 & 랜즈엔드', en:'Sutro Baths Ruins & Lands End', hood:'Lands End · Point Lobos Ave', area:'west', price:'무료',
+   lat:37.7802, lng:-122.5136, res:'NONE', resLabel:'예약 불필요',
+   resTip:'국립 휴양지(NPS)라 무료이고 예약이 없습니다. 바로 위 랜즈엔드 룩아웃 방문자센터(680 Point Lobos Ave)는 매일 오전 9시~오후 5시에 열고 화장실이 있습니다. 차는 Merrie Way 주차장에 대고, NPS가 차량털이를 경고하니 차 안에 물건을 두지 마세요.',
+   must:'밀물·썰물이 드나드는 옛 바닷물 목욕탕(1896년 개장) 콘크리트 유적, 절벽 위 코스탈 트레일(왕복 약 5km)과 금문교 원경, 간조 때 보이는 난파선 잔해, 태평양 일몰',
+   desc:'1966년 화재로 사라진 거대한 바닷물 목욕탕의 폐허와 해안 절벽 산책로입니다. 숙소에서 우버로 20~25분, 38번 Geary 버스로 40분 이상 걸립니다.',
+   tip:'지도의 [만조]를 켜고 물때를 보고 가세요. 간조엔 Merrie Way 주차장 아래 북서쪽 전망대에서 1937년 난파선 오하이오안호 잔해가 보이고, 만조나 파도가 높을 땐 스니커 웨이브가 예고 없이 덮칠 수 있으니(NPS 경고) 바다 쪽 벽과 바위에 올라가지 말고 바다를 등지지 마세요.',
+   q:'Sutro Baths Point Lobos Ave San Francisco CA 94121'},
+  {id:55, cat:'PHOTO', sub:'모자이크 계단', ko:'16번가 타일 계단', en:'16th Avenue Tiled Steps', hood:'Golden Gate Heights · Moraga St & 16th Ave', area:'west', price:'무료',
+   lat:37.7563, lng:-122.4733, res:'NONE', resLabel:'예약 불필요',
+   resTip:'주민들이 관리하는 공공 계단이라 무료입니다. 평일 오전 9시 30분~오후 8시, 주말 오전 10시~오후 8시에 개방하고 조명이 없으니 해 지기 전에 가세요.',
+   must:'바다에서 별하늘로 이어지는 163계단 모자이크, 계단 맨 아래(16th Ave)에서 올려다보는 정면 샷, 위쪽 그랜드뷰 파크의 도시·바다 전망',
+   desc:'동네 주민들이 2005년 완성한 163계단짜리 모자이크 계단입니다. 숙소에서 우버로 20~25분 걸립니다.',
+   tip:'조용한 주택가라 큰 소리·드론·차도 한가운데 서서 찍기는 삼가야 하고 공중화장실도 없습니다. 공식 사이트가 대낮 차량털이를 경고하니 차를 대면 차 안을 비워 두세요.',
+   q:'16th Avenue Tiled Steps Moraga St San Francisco CA 94122'},
+  {id:56, cat:'PHOTO', sub:'도심 옥상 정원 (학회장 도보 12분)', ko:'세일즈포스 파크', en:'Salesforce Park', hood:'SoMa · 425 Mission St (트랜짓 센터 옥상)', area:'downtown', price:'무료',
+   lat:37.7896, lng:-122.3966, res:'NONE', resLabel:'예약 불필요',
+   resTip:'무료 공공 공원입니다. 11~4월은 오전 6시~오후 8시, 5~10월은 오후 9시까지 열고 시간은 바뀔 수 있습니다. Mission St·Fremont St 쪽 그랜드 홀에서 에스컬레이터를 타고 올라갑니다.',
+   must:'아래층에 버스가 지나가면 247개 물줄기가 솟는 「버스 분수」, 빌딩 숲 사이 0.5마일 산책로, 옥상에서 올려다보는 세일즈포스 타워',
+   desc:'버스터미널 지붕 위 지상 21m 높이에 600그루 나무와 13개 테마 정원을 심은 공중 정원입니다. 학회장(모스콘 사우스)에서 걸어서 12분 안팎입니다.',
+   tip:'학회 점심시간에 커피 들고 산책하기 좋습니다. 버스 분수는 버스가 지나갈 때만 물이 솟으니 잠깐 기다렸다 찍으세요.',
+   q:'Salesforce Park 425 Mission St San Francisco CA 94105'}
 ];
 const P = Object.fromEntries(PLACES.map(p => [p.id, p]));
 
@@ -1227,13 +1377,13 @@ const COURSES = [
    mode:'walking', fromQ:'Marina Green San Francisco CA', toQ:'Fort Point National Historic Site San Francisco CA', viaQ:['Crissy Field East Beach San Francisco CA'],
    coords:[[37.8065,-122.4390],[37.8045,-122.4520],[37.8037,-122.4650],[37.8106,-122.4770]]},
   {id:'BIKE_SAUSALITO', key:'bike1', type:'자전거 1 · 대표 코스', name:'피셔맨즈 워프 → 금문교 → 소살리토', dist:'편도 약 13km · 1.5~2시간', level:'초중급 · 오르막 1회 · 전기 자전거 추천',
-   summary:'워프에서 자전거를 빌려 크리시 필드를 지나 금문교를 건너고, 소살리토에서 점심을 먹은 뒤 페리에 자전거를 싣고 돌아오는 코스입니다.',
+   summary:'워프에서 자전거를 빌려 크리시 필드를 지나 금문교를 건너고, 소살리토에서 점심을 먹은 뒤 Golden Gate Ferry에 자전거를 싣고 페리 빌딩으로 돌아오는 코스입니다.',
    tip:'금문교 북단에서 소살리토로 내려가는 Alexander Ave는 내리막 커브가 있으니 브레이크를 나눠 잡으세요. 돌아오는 페리는 오후 3시 이전이 덜 붐빕니다.',
    mode:'bicycling', fromQ:'Aquatic Park San Francisco CA', toQ:'Sausalito Ferry Terminal Sausalito CA', viaQ:['Crissy Field San Francisco CA','Golden Gate Bridge Welcome Center San Francisco CA'],
    coords:[[37.8065,-122.4238],[37.8070,-122.4320],[37.8062,-122.4400],[37.8045,-122.4520],[37.8037,-122.4650],[37.8077,-122.4750],[37.8180,-122.4782],[37.8322,-122.4810],[37.8440,-122.4805],[37.8555,-122.4790],[37.8565,-122.4785]]},
-  {id:'BIKE_GGP', key:'bike2', type:'자전거 2 · 차 없는 길', name:'골든게이트 파크 JFK 프롬나드 → 오션 비치', dist:'편도 6.5km · 왕복 13km', level:'초급 · 차량 통제 구간',
-   summary:'공원 동쪽 온실 화원에서 출발해 차가 다니지 않는 JFK Promenade를 따라 드 영 미술관, 스토우 호수, 네덜란드 풍차를 지나 태평양까지 갑니다.',
-   tip:'차가 없는 넓은 길이 길게 이어져 공유 자전거로도 편하게 탈 수 있습니다. 공원 서쪽 끝은 바람이 강합니다.',
+  {id:'BIKE_GGP', key:'bike2', type:'자전거 2 · 차 없는 길', name:'골든게이트 파크 JFK 프롬나드 → 오션 비치', dist:'편도 약 5km · 왕복 10km', level:'초급 · 동쪽 구간 차량 통제',
+   summary:'공원 동쪽 온실 화원에서 출발해 차 없는 JFK Promenade(약 2.4km)로 드 영 미술관과 스토우 호수 입구를 지나고, 이후 자전거 차선을 따라 네덜란드 풍차와 태평양까지 갑니다.',
+   tip:'동쪽 프롬나드 구간은 차가 없어 공유 자전거로도 편합니다. 서쪽 JFK Drive는 차가 다니니 자전거 차선을 지키세요. 공원 서쪽 끝은 바람이 강합니다.',
    mode:'bicycling', fromQ:'Conservatory of Flowers San Francisco CA', toQ:'Dutch Windmill Golden Gate Park San Francisco CA', viaQ:['de Young Museum San Francisco CA','Stow Lake Boathouse San Francisco CA'],
    coords:[[37.7726,-122.4602],[37.7715,-122.4687],[37.7685,-122.4780],[37.7695,-122.4950],[37.7704,-122.5094]]}
 ];
@@ -1246,7 +1396,7 @@ const DAYS = [
    stops:[34,18,15,24,12,1,29,11,28],
    legs:[['walk','Powell St를 따라 회차지로 (낮에는 붐비고 안전한 편)'],['cable','파월-하이드 노선, Hyde & Lombard 정류장 하차'],['walk','롬바드 계단을 내려와 북쪽으로'],['walk',''],['walk','Embarcadero 해안길'],['bike','자전거 대여 후 해안길, 아니면 우버'],['bike','크리시 필드 해안길'],['ride','금문교 북단 언덕, 자전거 또는 차량']]},
   {day:'DAY 2', title:'페리 빌딩·알카트라즈·미션', sub:'학회장 → 페리 빌딩 → 알카트라즈 → 타르틴 → 알라모 → 헤이즈 밸리 → 멘쇼',
-   desc:'학회 일정 전후로 페리 빌딩과 알카트라즈(예약 필수)를 보고, 오후에는 미션과 알라모 스퀘어, 저녁은 숙소 근처 멘쇼 토쿄 라멘입니다.',
+   desc:'학회 일정 전후로 페리 빌딩과 알카트라즈(예약 필수)를 보고, 오후에는 미션과 알라모 스퀘어, 저녁은 숙소 근처 멘쇼 토쿄 라멘입니다. 알카트라즈는 2026년 10월 26일~11월 18일 부두 공사로 휴장하니(11월 19일 재개 예정), 이 기간에는 피어 39나 베이 크루즈로 바꾸세요.',
    tip:'학회장에서 페리 빌딩은 도보 약 20분입니다. 헤이즈 밸리에서 멘쇼로 갈 때는 시빅 센터·텐더로인을 지나므로 걷지 말고 우버를 타세요.',
    stops:[35,14,8,13,2,30,20,10,34],
    legs:[['walk','Mission St 또는 Howard St를 따라 동쪽'],['walk','같은 건물 안'],['walk','Embarcadero 해안길, F 노선 전차도 가능'],['ride','약 5km, 우버나 Muni'],['ride','약 2.5km, 우버 추천'],['walk','Hayes St 내리막'],['ride','시빅 센터·텐더로인 통과 구간이라 우버'],['walk','Geary St 동쪽 → Mason St → Post St (늦은 밤엔 우버)']]},
@@ -1254,7 +1404,7 @@ const DAYS = [
    desc:'아침에 놉힐 언덕 사진을 찍고 SFMOMA를 본 뒤, 골든게이트 파크와 필모어 스트리트를 둘러봅니다. 저녁은 하우스 오브 프라임 립, 마무리는 트윈픽스나 메리어트 39층 야경입니다.',
    tip:'이동 거리가 긴 날입니다. Muni 버스나 웨이모를 섞어 쓰세요. 트윈픽스는 안개가 끼면 메리어트 39층으로 바꾸세요.',
    stops:[34,31,17,16,21,25,6,33,36],
-   legs:[['walk','Powell St 오르막 약 3블록'],['walk','Stockton St로 내려와 Market St 건너기'],['transit','약 7km, Muni 5R 또는 우버'],['ride','우버나 Muni 버스'],['walk','California St를 따라 동쪽'],['walk','두 블록'],['ride','언덕길, 우버'],['ride','우버로 학회장 호텔 39층']]}
+   legs:[['walk','Powell St 오르막 약 4블록'],['walk','Stockton St로 내려와 Market St 건너기'],['transit','약 7km, Muni 5R 또는 우버'],['ride','우버나 Muni 버스'],['walk','California St를 따라 동쪽'],['walk','두 블록'],['ride','언덕길, 우버'],['ride','우버로 학회장 호텔 39층']]}
 ];
 
 const CAUTION_ZONES = [
@@ -1291,9 +1441,8 @@ const BIG_LABELS = [
 const CONTACTS = [
   {t:'경찰·소방·구급 (응급)', s:'생명이 위험하거나 범죄가 진행 중일 때', n:'911'},
   {t:'SFPD 비응급 신고', s:'도난 신고, 소음 등 급하지 않은 경찰 업무', n:'+1-415-553-0123'},
-  {t:'주샌프란시스코 총영사관', s:'평일 9:00~17:00 · 3500 Clay St', n:'+1-415-921-2251'},
+  {t:'주샌프란시스코 총영사관', s:'평일 9:00~17:00 · 3500 Clay St (민원실 방문은 예약 필수)', n:'+1-415-921-9577'},
   {t:'총영사관 긴급 (근무시간 외)', s:'17:00~09:00 사건사고 전용', n:'+1-415-265-4859'},
-  {t:'총영사관 긴급 (예비)', s:'위 번호가 안 될 때', n:'+1-415-265-4746'},
   {t:'외교부 영사콜센터', s:'24시간 · 한국어 · 여권 분실 등', n:'+82-2-3210-0404'}
 ];
 
@@ -1302,7 +1451,7 @@ const CHECK = [
     ['esta','ESTA 승인 또는 비자 확인 (공식 사이트 esta.cbp.dhs.gov만 이용)'],
     ['reg','학회 등록 확인 메일과 배지 QR 저장'],
     ['hotel','숙소 예약 확인 (Inn at Union Square)'],
-    ['alc','알카트라즈 티켓 예매 (2~4주 전)'],
+    ['alc','알카트라즈 티켓 예매 (2~4주 전, 10/26~11/18은 공사 휴장)'],
     ['hopr','하우스 오브 프라임 립 예약 (OpenTable)'],
     ['muni','MuniMobile 설치, Clipper 카드를 휴대폰 지갑에 추가'],
     ['ride','Uber·Lyft·Waymo 앱 설치와 결제 카드 등록'],
@@ -1360,7 +1509,7 @@ function saveState(){
 }
 const HOTEL_DEFAULT = (({ko, en, hood, lat, lng, q, resTip, must, desc}) => ({ko, en, hood, lat, lng, q, resTip, must, desc}))(P[BASE.hotel]);
 
-const ui = {hotelHits:[], cat:'ALL', res:'ALL', area:'ALL', q:'', sort:'rec', unvisited:false, sel:34, open:new Set(), plan:'d0', course:'NONE', caution:true, routeLine:true, basis:'sub', tip:18, view:'places', sheetMin:window.matchMedia('(max-width: 1023.98px) and (max-height: 500px) and (orientation: landscape)').matches};
+const ui = {hotelHits:[], cat:'ALL', res:'ALL', area:'ALL', q:'', sort:'rec', unvisited:false, sel:34, open:new Set(), plan:'d0', course:'NONE', caution:true, routeLine:true, tide:false, mapView:null, basis:'sub', tip:18, view:'places', sheetMin:window.matchMedia('(max-width: 1023.98px) and (max-height: 500px) and (orientation: landscape)').matches};
 
 /* =================== HELPERS =================== */
 const $ = (s, r=document) => r.querySelector(s);
@@ -1593,7 +1742,7 @@ function ensureMap(){
   // Whole zoom steps only: fractional zoom scales raster tiles and leaves hairline seams between them.
   map = L.map('leafletMap', {zoomControl:false, zoomSnap:1, zoomDelta:1, wheelPxPerZoomLevel:90, minZoom:10, maxZoom:18,
     maxBounds:L.latLngBounds([37.45,-122.85],[38.05,-121.55]), maxBoundsViscosity:0.7});
-  map.setView([37.7920, -122.4250], 13);
+  if (ui.mapView) map.setView(ui.mapView.slice(0, 2), ui.mapView[2]); else map.setView([37.7920, -122.4250], 13);
   map.attributionControl.setPrefix(false);
   map.attributionControl.addAttribution('DataSF');
   L.control.zoom({position:'topright', zoomInTitle:'확대', zoomOutTitle:'축소'}).addTo(map);
@@ -1604,7 +1753,10 @@ function ensureMap(){
   BRIDGES.forEach(b => L.polyline(b, {pane:'offline', className:'lf-bridge', weight:4, interactive:false}).addTo(map));
   map.createPane('mapLabels').style.zIndex = 380;
   map.getPane('mapLabels').style.pointerEvents = 'none';
+  map.createPane('tide').style.zIndex = 250;
+  map.getPane('tide').style.pointerEvents = 'none';
   setBasemap(state.basemap);
+  drawTide();
   const lab = (t, c, k) => L.marker(c, {interactive:false, keyboard:false, zIndexOffset:-1000, icon:L.divIcon({className:'map-label-wrap', iconSize:[0,0], html:`<span class="map-label ${k}">${esc(t)}</span>`})}).addTo(map);
   Object.entries(MAPDATA.labels).forEach(([n, c]) => { if (HOOD_KO[n]) lab(HOOD_KO[n], c, 'hood'); });
   BIG_LABELS.forEach(l => lab(l.t, l.c, l.k));
@@ -1775,9 +1927,73 @@ function locateMe(){
 }
 function renderLegend(){
   const items = CATS.filter(c => !['ALL','FAV'].includes(c.id)).map(c => `<span style="--c:var(${c.v})"><i class="${c.id === 'BASECAMP' ? 'sq' : ''}"></i>${esc(c.label)}</span>`);
-  items.push(`<span class="zone"><i></i>도보 주의 구역</span>`);
+  items.push(`<span class="zone"><i></i>도보 주의 구역</span>`, `<span class="tide"><i></i>만조 때 물 차는 곳</span>`, `<span class="tide low"><i></i>물 고이는 저지대</span>`);
   $('#legend').innerHTML = items.join('');
   $('#courseSel').innerHTML = `<option value="NONE">코스 숨기기</option>` + COURSES.map(c => `<option value="${c.id}">${esc(c.type)} · ${esc(c.name)}</option>`).join('');
+}
+
+/* =================== TIDE =================== */
+// Tide times: NOAA station 9414290 (San Francisco, Golden Gate), metres above MLLW. MHHW there is 1.78 m.
+// Flood extent: NOAA Sea Level Rise Viewer tiles, published for MHHW and every 0.5 ft above it.
+const TIDE_KEY = 'sfguide.tide', TIDE_MHHW = 1.78;
+const TIDE_API = 'https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?product=predictions&application=sanfrankko&station=9414290&datum=MLLW&time_zone=gmt&units=metric&interval=hilo&format=json';
+const SLR = 'https://coast.noaa.gov/arcgis/rest/services/dc_slr/';
+let tide = (() => { try { const t = JSON.parse(localStorage.getItem(TIDE_KEY) || 'null'); return t && Array.isArray(t.p) ? t : null; } catch(e){ return null; } })();
+let tideFail = false;
+async function refreshTide(){
+  const now = Date.now();
+  if (!navigator.onLine || (tide && now - tide.at < 12 * 3600e3 && tide.p.some(x => x.t > now + 48 * 3600e3))) return;
+  const from = new Date(now - 864e5).toISOString().slice(0, 10).replace(/-/g, '');
+  try {
+    const j = await (await fetch(`${TIDE_API}&begin_date=${from}&range=216`)).json();
+    const p = (j.predictions || []).map(x => ({t:Date.parse(x.t.replace(' ', 'T') + 'Z'), v:+x.v, h:x.type === 'H'})).filter(x => isFinite(x.t) && isFinite(x.v));
+    if (!p.length) throw new Error('no tide data');
+    tide = {at:now, p}; tideFail = false;
+    try { localStorage.setItem(TIDE_KEY, JSON.stringify(tide)); } catch(e) {}
+  } catch(e){ tideFail = true; }
+  renderTide(); drawTide();
+}
+function tideAhead(){
+  const now = Date.now(), next = tide ? tide.p.filter(x => x.t > now) : [];
+  if (!next.length) return null;
+  // The map is drawn for the highest high water of the next 24 h, so an afternoon king tide already shows in the morning.
+  const day = next.filter(x => x.h && x.t < now + 864e5);
+  return {hi:next.find(x => x.h), lo:next.find(x => !x.h), top:day.length ? day.reduce((a, b) => b.v > a.v ? b : a) : null, rising:next[0].h};
+}
+// Feet above MHHW in NOAA's 0.5 ft steps; 0 is an ordinary high tide.
+const tideFt = top => top ? Math.min(3, Math.max(0, Math.round((top.v - TIDE_MHHW) / 0.3048 * 2) / 2)) : 0;
+const tideM = v => (Math.round(v * 10) / 10 || 0).toFixed(1).replace('-', '−') + 'm';
+function tideWhen(t){
+  const f = o => new Intl.DateTimeFormat('ko-KR', {timeZone:'America/Los_Angeles', ...o}).format(t);
+  const d = dayDiff(new Intl.DateTimeFormat('en-CA', {timeZone:'America/Los_Angeles'}).format(t), sfToday());
+  return (d === 0 ? '' : d === 1 ? '내일 ' : f({month:'numeric', day:'numeric'}) + ' ') + f({hour:'numeric', minute:'2-digit'});
+}
+function renderTide(){
+  $('#tideBtn').setAttribute('aria-pressed', ui.tide);
+  $('#tideBanner').hidden = !ui.tide;
+  if (!ui.tide) return;
+  const a = tideAhead();
+  if (!a){
+    $('#tdTitle').textContent = '평균 만조 때 물이 차는 범위';
+    $('#tdMeta').textContent = !navigator.onLine ? '오프라인이라 물때 시각을 불러오지 못했습니다' : tideFail ? '물때 시각을 불러오지 못했습니다. 잠시 후 다시 켜 보세요' : '물때 시각을 불러오는 중입니다';
+    $('#tdBasis').textContent = '';
+    return;
+  }
+  $('#tdTitle').textContent = (a.rising ? '밀물' : '썰물') + (a.hi ? ` · 만조 ${tideWhen(a.hi.t)} ${tideM(a.hi.v)}` : '');
+  $('#tdMeta').textContent = a.lo ? `간조 ${tideWhen(a.lo.t)} ${tideM(a.lo.v)}` : '';
+  const over = a.top ? Math.round((a.top.v - TIDE_MHHW) * 100) : 0;
+  $('#tdBasis').textContent = a.top ? `지도: ${tideWhen(a.top.t)} 만조 기준${over >= 5 ? ` · 평균 만조보다 ${over}cm 높음` : ''}` : '지도: 평균 만조 기준';
+  $('#tideBanner').title = '높이는 평균 최저 간조면(MLLW) 기준, 골든게이트 관측소 예보입니다.';
+}
+function drawTide(){
+  if (!map) return;
+  const want = ui.tide ? tideFt((tideAhead() || {}).top) : null;
+  if (layers.tide && layers.tide.ft === want) return;
+  if (layers.tide){ map.removeLayer(layers.tide); layers.tide = null; }
+  if (want === null) return;
+  layers.tide = L.tileLayer(`${SLR}slr_${String(want).replace('.', '_')}ft/MapServer/tile/{z}/{y}/{x}`,
+    {pane:'tide', maxZoom:18, maxNativeZoom:15, opacity:.45, attribution:'만조 범위 © NOAA'}).addTo(map);
+  layers.tide.ft = want;
 }
 
 /* =================== MINI MAP =================== */
@@ -2049,6 +2265,55 @@ function measure(){
   if (map) requestAnimationFrame(() => map.invalidateSize());
 }
 
+/* =================== RESUME =================== */
+// Phones often restart the app while you are in Google Maps (iOS home-screen apps reopen at the start page),
+// which used to drop you back at the top of the list. Remember the screen on the way out and put you back there.
+const RESUME_KEY = 'sfguide.resume', RESUME_MAX = 6 * 3600e3;
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+function saveResume(){
+  const s = {at:Date.now(), view:ui.view, y:Math.round(window.scrollY), cat:ui.cat, res:ui.res, area:ui.area, q:ui.q, sort:ui.sort, unvisited:ui.unvisited,
+    filters:!$('#filterRow').hidden, sel:ui.sel, open:[...ui.open], plan:ui.plan, course:ui.course, caution:ui.caution, routeLine:ui.routeLine, tide:ui.tide};
+  if (ui.view === 'places'){
+    // Anchor to the card at the top of the screen, so a small layout shift (fonts, offline bar) still lands on it.
+    const top = $('#topbar').getBoundingClientRect().bottom, c = $$('#placeList .card').find(el => el.getBoundingClientRect().bottom > top);
+    if (c) s.anchor = [+c.dataset.id, Math.round(c.getBoundingClientRect().top)];
+  }
+  if (map){ const c = map.getCenter(); s.map = [+c.lat.toFixed(5), +c.lng.toFixed(5), map.getZoom()]; }
+  try { localStorage.setItem(RESUME_KEY, JSON.stringify(s)); } catch(e) {}
+}
+function loadResume(){
+  let s = null; try { s = JSON.parse(localStorage.getItem(RESUME_KEY) || 'null'); } catch(e) {}
+  if (!s || !(Date.now() - s.at < RESUME_MAX)) return null;
+  const one = (v, list, d) => list.includes(v) ? v : d;
+  ui.cat = one(s.cat, CATS.map(c => c.id), 'ALL');
+  ui.res = one(s.res, ['ALL', ...Object.keys(RES_SHORT)], 'ALL');
+  ui.area = one(s.area, AREAS.map(a => a[0]), 'ALL');
+  ui.sort = one(s.sort, ['rec', 'hotel', 'conf', 'name'], 'rec');
+  ui.q = typeof s.q === 'string' ? s.q.slice(0, 80) : '';
+  ui.unvisited = s.unvisited === true;
+  ui.sel = one(s.sel, PLACES.map(p => p.id), ui.sel);
+  ui.open = new Set((Array.isArray(s.open) ? s.open : []).filter(id => P[id] && Number.isInteger(id)));
+  ui.plan = one(s.plan, ['my', ...DAYS.map((d, i) => 'd' + i)], ui.plan);
+  ui.course = one(s.course, ['NONE', ...COURSES.map(c => c.id)], 'NONE');
+  ['caution', 'routeLine', 'tide'].forEach(k => { if (typeof s[k] === 'boolean') ui[k] = s[k]; });
+  if (Array.isArray(s.map) && s.map.length === 3 && s.map.every(Number.isFinite)) ui.mapView = s.map;
+  $('#q').value = ui.q; $('#qClear').hidden = !ui.q;
+  $('#sortSel').value = ui.sort; $('#resSel').value = ui.res; $('#areaSel').value = ui.area;
+  $('#unvisitedBtn').setAttribute('aria-pressed', ui.unvisited);
+  $('#cautionChk').checked = ui.caution; $('#routeChk').checked = ui.routeLine;
+  if (s.filters){ $('#filterRow').hidden = false; $('#filterBtn').setAttribute('aria-expanded', 'true'); }
+  // A relaunch opens the bare start URL; an explicit #view in the link still wins.
+  if (!location.hash && VIEWS.includes(s.view)) history.replaceState(null, '', '#' + s.view);
+  return s;
+}
+function restoreScroll(s){
+  const el = ui.view === 'places' && s.anchor && document.getElementById('card-' + s.anchor[0]);
+  window.scrollTo(0, el ? el.getBoundingClientRect().top + window.scrollY - s.anchor[1] : s.view === ui.view ? s.y : 0);
+  lastY = window.scrollY;
+}
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveResume(); });
+window.addEventListener('pagehide', saveResume);
+
 /* =================== TRIP DATES =================== */
 const sfToday = () => new Intl.DateTimeFormat('en-CA', {timeZone:'America/Los_Angeles'}).format(new Date());
 const dayDiff = (a, b) => Math.round((Date.parse(a) - Date.parse(b)) / 864e5);
@@ -2249,6 +2514,7 @@ function resetFilters(){
 function renderAll(){ renderCatChips(); renderList(); renderSheet(); renderCourses(); renderChecklist(); updateRouteCounts(); drawRouteLine(); if (!$('#view-plan').hidden) renderPlan(); }
 
 document.addEventListener('click', e => {
+  if (e.target.closest('a[target="_blank"]')) saveResume();
   const g = e.target.closest('[data-go]');
   if (g){ go(g.dataset.go); return; }
   const a = e.target.closest('[data-act]');
@@ -2284,6 +2550,7 @@ document.addEventListener('click', e => {
     case 'copy-num': copyText(a.dataset.n, '번호'); break;
     case 'show-course': showCourse(a.dataset.course); break;
     case 'hide-course': ui.course = 'NONE'; drawCourse(false); break;
+    case 'tide': ui.tide = !ui.tide; if (ui.tide) refreshTide(); renderTide(); drawTide(); break;
     case 'basemap': state.basemap = a.dataset.map; saveState(); renderBasemapSeg(); if (map) setBasemap(state.basemap); break;
     case 'sheet-min': ui.sheetMin = !ui.sheetMin; renderSheet(); break;
     case 'route-map':
@@ -2360,7 +2627,7 @@ function renderOnline(){
   }
   measure();
 }
-window.addEventListener('online', () => { renderOnline(); refreshRate(false); });
+window.addEventListener('online', () => { renderOnline(); refreshRate(false); refreshTide(); });
 window.addEventListener('offline', renderOnline);
 // Phone: hide the header while scrolling down, bring it back on any scroll up.
 let lastY = window.scrollY;
@@ -2408,11 +2675,18 @@ window.addEventListener('resize', () => { clearTimeout(rzTimer); rzTimer = setTi
   $('#tripStart').value = state.trip.start; $('#tripEnd').value = state.trip.end;
   const ts = tripStatus();
   if (ts && ts.k === 'during' && DAYS[ts.n - 1]) ui.plan = 'd' + (ts.n - 1);
+  const resume = loadResume();
   renderLegend(); renderBasemapSeg(); renderCatChips(); renderList(); renderSheet(); renderCourses();
-  renderTips(); calc(); renderContacts(); renderChecklist(); updateRouteCounts(); renderExp(); refreshRate(false);
-  tickClock(); setInterval(tickClock, 30000);
-  renderOnline();
+  renderTips(); calc(); renderContacts(); renderChecklist(); updateRouteCounts(); renderExp(); refreshRate(false); refreshTide();
+  tickClock(); setInterval(() => { tickClock(); if (ui.tide){ renderTide(); drawTide(); } }, 30000);
+  renderOnline(); renderTide();
   applyRoute();
+  if (resume){
+    restoreScroll(resume);
+    // Web fonts can shift the list a little once they arrive; land on the card again unless you already moved.
+    const y = window.scrollY;
+    if (document.fonts) document.fonts.ready.then(() => { if (window.scrollY === y) restoreScroll(resume); });
+  }
   initInstallTip();
 })();
 </script>
