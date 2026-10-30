@@ -545,6 +545,7 @@ button,a{-webkit-tap-highlight-color:transparent}
     <symbol id="i-run" viewBox="0 0 24 24"><circle cx="15.5" cy="4.5" r="1.8"/><path d="M5 20.5l4-5.5 3.5 2.5 1.5-6.5 3 3.5h3M8.5 9.5l3.5-2.5 2.5 1"/></symbol>
     <symbol id="i-bed" viewBox="0 0 24 24"><path d="M3 18.5v-12M3 14h18v4.5M21 14a3 3 0 0 0-3-3h-7v3"/><circle cx="7" cy="11.5" r="1.6"/></symbol>
     <symbol id="i-badge" viewBox="0 0 24 24"><rect x="5" y="3.5" width="14" height="17" rx="2"/><circle cx="12" cy="10" r="2.5"/><path d="M8.5 16.5c.8-1.5 2-2.2 3.5-2.2s2.7.7 3.5 2.2"/></symbol>
+    <symbol id="i-plane" viewBox="0 0 24 24"><path d="M12 2.5c.9 0 1.5.8 1.5 1.8V9.5l7 4.2v1.8l-7-2.2v4.4l2.2 1.6v1.4L12 19.8 8.3 20.7v-1.4l2.2-1.6v-4.4l-7 2.2v-1.8l7-4.2V4.3c0-1 .6-1.8 1.5-1.8z"/></symbol>
     <symbol id="i-building" viewBox="0 0 24 24"><path d="M4 21V5l8-2v18M12 8h8v13M2.5 21h19M7.5 8h1M7.5 12h1M7.5 16h1M15.5 12h1M15.5 16h1"/></symbol>
     <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3.5 2.5 20h19z"/><path d="M12 10v4.5M12 17.2v.01"/></symbol>
     <symbol id="i-up" viewBox="0 0 24 24"><path d="m6 15 6-6 6 6"/></symbol>
@@ -929,14 +930,14 @@ const MAPDATA = {"land":{"type":"MultiPolygon","coordinates":[[[[-122.3964,37.63
 
 /* =================== DATA =================== */
 const BASE = {
-  hotel: 34, conf: 35, marq: 36
+  hotel: 34, conf: 35, marq: 36, sfo: 60
 };
-// Hotel and conference venues show an icon instead of their list number.
-const BASE_ICON = {34:'i-bed', 35:'i-badge', 36:'i-building'};
+// Hotel, conference venues and the airport show an icon instead of their list number.
+const BASE_ICON = {34:'i-bed', 35:'i-badge', 36:'i-building', 60:'i-plane'};
 
 const CATS = [
   {id:'ALL', label:'전체', v:'--ink-3'},
-  {id:'BASECAMP', label:'숙소·학회장', v:'--cat-base'},
+  {id:'BASECAMP', label:'숙소·학회장·공항', v:'--cat-base'},
   {id:'FOOD', label:'맛집·카페', v:'--cat-food'},
   {id:'ATTRACTION', label:'구경할 곳', v:'--cat-sight'},
   {id:'SHOPPING', label:'쇼핑', v:'--cat-shop'},
@@ -958,7 +959,7 @@ const AREAS = [
   ['mission','미션·헤이즈 밸리'],
   ['presidio','프레시디오·금문교·마린'],
   ['west','골든게이트 파크·트윈픽스'],
-  ['outer','시외 (리버모어)']
+  ['outer','시외 (공항·리버모어)']
 ];
 
 const PLACES = [
@@ -983,6 +984,14 @@ const PLACES = [
    desc:'모스콘 센터 학회 때 분과 세션과 리셉션이 자주 열리는 대형 컨벤션 호텔입니다.',
    tip:'39층 The View Lounge는 통유리로 다운타운 야경이 보이는 바입니다. 운영 시간은 자주 바뀌니 방문 전 확인하세요.',
    q:'San Francisco Marriott Marquis 780 Mission St San Francisco CA 94103'},
+  {id:60, cat:'BASECAMP', sub:'도착·출발 공항', ko:'샌프란시스코 국제공항 (SFO)', en:'San Francisco International Airport (SFO)', hood:'San Mateo County · 시내 남쪽 약 20km', area:'outer', price:'공항',
+   lat:37.6160, lng:-122.3870, res:'NONE', baseTag:'도착·출발 공항',
+   resTip:'한국에서 오는 국제선은 국제선 터미널(International Terminal, A·G 게이트)에 내려 입국심사를 받습니다. 터미널과 BART역, 렌터카 센터 사이는 무료 에어트레인(AirTrain)이 24시간 다닙니다. 우버·리프트는 국내선 터미널이면 주차장(Domestic Garage) 5층, 국제선 터미널이면 출발층(3층) 가운데 섬 14~17번 구역에서 타고, 앱에 뜨는 승차 구역이 가장 정확합니다.',
+   must:'BART로 Powell St역까지 환승 없이 약 30분(편도 약 $11~12) · 숙소까지 차로 30~45분 · 무료 에어트레인 24시간',
+   desc:'시내 남쪽 약 20km, 샌마테오 카운티에 있는 베이 지역 최대 공항입니다. BART역은 국제선 터미널 출발층(3층)에 붙어 있고, 국내선 터미널에서는 에어트레인으로 갑니다. Powell St역에서 숙소까지는 Powell St를 따라 북쪽으로 4블록, 도보 7~8분입니다.',
+   tip:'BART는 Clipper(휴대폰 지갑)나 컨택리스 신용카드를 개찰구에 태그하고, 내릴 때도 같은 카드로 태그합니다. 일행도 각자 카드나 휴대폰이 있어야 합니다. Millbrae행은 반대 방향이니 타지 마세요. 택시는 도착층 승차장에서 타며 미터제로 팁 빼고 $50~65 안팎입니다. 웨이모는 터미널이 아니라 렌터카 센터에서만 타니, 앱에서 SFO가 선택되는지 먼저 확인하세요.',
+   caution:'밤늦게 도착하거나 짐이 많으면 Powell St역에서 숙소까지 걷지 말고 우버를 타세요. 역 서쪽 블록은 텐더로인입니다.',
+   q:'San Francisco International Airport SFO San Francisco CA 94128'},
 
   {id:1, cat:'FOOD', sub:'베이커리·클램차우더', ko:'보딘 베이커리 본점', en:'Boudin Bakery', hood:"Fisherman's Wharf", area:'wharf', price:'$$',
    lat:37.8083, lng:-122.4152, res:'WALKIN', resLabel:'1층 현장 주문 · 2층 예약 가능',
@@ -1538,6 +1547,8 @@ function distText(from, to){
   const e = est(from, to);
   return e.walk <= 30 ? `도보 <b>${e.walk}분</b>` : `<b>${fmtKm(e.d)}</b> · 차로 ${e.drive}분`;
 }
+// Same 30-minute cutoff as distText: farther than that, open transit directions instead of walking.
+const legMode = (from, to) => est(from, to).walk <= 30 ? 'walking' : 'transit';
 
 const GM = 'https://www.google.com/maps';
 const enc = s => encodeURIComponent(s);
@@ -1679,8 +1690,8 @@ function cardHTML(p){
         <div><dt>현실 팁</dt><dd class="tip">${esc(p.tip)}</dd></div>
       </dl>
       <div class="actions">
-        ${p.id !== BASE.hotel ? `<a class="btn soft" href="${gDir(p, 'walking', P[BASE.hotel])}" target="_blank" rel="noopener">${icon('i-bed','sm')}숙소에서 출발</a>` : ''}
-        ${p.id !== BASE.conf ? `<a class="btn soft" href="${gDir(p, 'walking', P[BASE.conf])}" target="_blank" rel="noopener">${icon('i-badge','sm')}학회장에서 출발</a>` : ''}
+        ${p.id !== BASE.hotel ? `<a class="btn soft" href="${gDir(p, legMode(P[BASE.hotel], p), P[BASE.hotel])}" target="_blank" rel="noopener">${icon('i-bed','sm')}숙소에서 출발</a>` : ''}
+        ${p.id !== BASE.conf ? `<a class="btn soft" href="${gDir(p, legMode(P[BASE.conf], p), P[BASE.conf])}" target="_blank" rel="noopener">${icon('i-badge','sm')}학회장에서 출발</a>` : ''}
         <a class="btn soft" href="${gDir(p, 'transit')}" target="_blank" rel="noopener">${icon('i-tram','sm')}대중교통</a>
         <a class="btn soft" href="${uberUrl(p)}" target="_blank" rel="noopener">${icon('i-car','sm')}우버 부르기</a>
         <a class="btn soft" href="${gSearch(p)}" target="_blank" rel="noopener">${icon('i-ext','sm')}구글맵 정보</a>
@@ -1855,8 +1866,10 @@ function drawCourse(fit){
 }
 function fitAll(){
   if (!map) return;
-  const pts = filtered().filter(p => p.id !== 23).map(p => [p.lat, p.lng]);
-  PLACES.filter(p => p.cat === 'BASECAMP').forEach(p => pts.push([p.lat, p.lng]));
+  // Out-of-town places (airport, outlet) would zoom out past the city, so leave them out unless nothing else is shown.
+  const list = filtered(), inTown = list.filter(p => p.area !== 'outer');
+  const pts = (inTown.length ? inTown : list).map(p => [p.lat, p.lng]);
+  PLACES.filter(p => p.cat === 'BASECAMP' && p.area !== 'outer').forEach(p => pts.push([p.lat, p.lng]));
   map.flyToBounds(L.latLngBounds(pts), {padding:[50,50], duration:.6, maxZoom:15});
 }
 function renderSheet(){
@@ -1876,7 +1889,7 @@ function renderSheet(){
     <div class="meta">${resChip(p)}${distChips(p)}</div>
     <div class="sheet-actions">
       <a class="btn primary" href="${gDir(p)}" target="_blank" rel="noopener">${icon('i-nav','sm')}길찾기</a>
-      <a class="btn" href="${p.id === BASE.hotel ? gDir(p, 'walking', P[BASE.conf]) : gDir(p, 'walking', P[BASE.hotel])}" target="_blank" rel="noopener">${p.id === BASE.hotel ? '학회장→' : '숙소→'}</a>
+      <a class="btn" href="${p.id === BASE.hotel ? gDir(p, 'walking', P[BASE.conf]) : gDir(p, legMode(P[BASE.hotel], p), P[BASE.hotel])}" target="_blank" rel="noopener">${p.id === BASE.hotel ? '학회장→' : '숙소→'}</a>
       <button type="button" class="btn${inRoute ? ' on' : ''}" data-act="route" data-id="${p.id}">${inRoute ? '동선 ✓' : '동선 +'}</button>
       <button type="button" class="btn" data-act="detail" data-id="${p.id}">상세</button>
     </div>`;
@@ -1889,7 +1902,7 @@ function selectPlace(id, opts = {}){
   drawPins();
   if (opts.fly && map){
     const p = P[id];
-    map.flyTo([p.lat, p.lng], p.id === 23 ? 12 : Math.max(map.getZoom(), 16), {duration:.6});
+    map.flyTo([p.lat, p.lng], p.id === 23 ? 12 : p.id === BASE.sfo ? 15 : Math.max(map.getZoom(), 16), {duration:.6});
   }
   if (opts.from === 'map' && isDesktop()){
     const el = document.getElementById('card-' + id);
